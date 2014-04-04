@@ -79,3 +79,6 @@ cdef class iterate:
 
 
 cpdef int count(object seq)
+
+
+cpdef object partition(int n, object seq, object pad=*)

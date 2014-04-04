@@ -3,7 +3,7 @@ from cpython.list cimport PyList_New, PyList_Append
 from cpython.ref cimport PyObject
 from cpython.sequence cimport PySequence_Check
 from cpython.set cimport PySet_Add, PySet_Contains
-from itertools import chain, islice
+from itertools import chain, islice, izip_longest
 
 
 concatv = chain
@@ -516,3 +516,31 @@ cpdef int count(object seq):
     for _ in seq:
         i += 1
     return i
+
+
+no_pad = '__no__pad__'
+
+
+cpdef object partition(int n, object seq, object pad=no_pad):
+    """ Partition sequence into tuples of length n
+
+    >>> list(partition(2, [1, 2, 3, 4]))
+    [(1, 2), (3, 4)]
+
+    If the length of ``seq`` is not evenly divisible by ``n``, the final tuple
+    is dropped if ``pad`` is not specified, or filled to length ``n`` by pad:
+
+    >>> list(partition(2, [1, 2, 3, 4, 5]))
+    [(1, 2), (3, 4)]
+
+    >>> list(partition(2, [1, 2, 3, 4, 5], pad=None))
+    [(1, 2), (3, 4), (5, None)]
+
+    See Also:
+        partition_all
+    """
+    args = [iter(seq)] * n
+    if pad is no_pad:
+        return zip(*args)
+    else:
+        return izip_longest(*args, fillvalue=pad)

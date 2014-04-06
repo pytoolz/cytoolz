@@ -64,18 +64,18 @@ def testmod(m=None, *args, **kwargs):
 
 
 if __name__ == '__main__':
-    import coolz
-    import coolz.dicttoolz
-    import coolz.functoolz
-    import coolz.itertoolz
-    import coolz.dicttoolz.core
-    import coolz.functoolz.core
-    import coolz.itertoolz.core
+    import cytoolz
+    import cytoolz.dicttoolz
+    import cytoolz.functoolz
+    import cytoolz.itertoolz
+    import cytoolz.dicttoolz.core
+    import cytoolz.functoolz.core
+    import cytoolz.itertoolz.core
 
-    testmod(coolz)
-    testmod(coolz.dicttoolz)
-    testmod(coolz.functoolz)
-    testmod(coolz.itertoolz)
-    testmod(coolz.dicttoolz.core)
-    testmod(coolz.functoolz.core)
-    testmod(coolz.itertoolz.core)
+    testmod(cytoolz)
+    testmod(cytoolz.dicttoolz)
+    testmod(cytoolz.functoolz)
+    testmod(cytoolz.itertoolz)
+    testmod(cytoolz.dicttoolz.core)
+    testmod(cytoolz.functoolz.core)
+    testmod(cytoolz.itertoolz.core)

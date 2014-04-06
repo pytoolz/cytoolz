@@ -187,8 +187,8 @@ cdef class curry:
     5
 
     See Also:
-        coolz.curried - namespace of curried functions
-                        http://toolz.readthedocs.org/en/latest/curry.html
+        cytoolz.curried - namespace of curried functions
+                          http://toolz.readthedocs.org/en/latest/curry.html
     """
     property func:
         def __get__(self):
@@ -481,8 +481,8 @@ cpdef object do(object func, object x):
     Logging functions can be made by composing ``do`` with a storage function
     like ``list.append`` or ``file.write``
 
-    >>> from coolz import compose
-    >>> from coolz.curried import do
+    >>> from cytoolz import compose
+    >>> from cytoolz.curried import do
 
     >>> log = []
     >>> inc = lambda x: x + 1

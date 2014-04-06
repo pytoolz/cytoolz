@@ -1,4 +1,4 @@
-Coolz
+CyToolz
 =====
 
 Cython implementation of the `toolz <https://github.com/pytoolz/toolz>`__ package.

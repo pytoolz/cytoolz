@@ -56,6 +56,9 @@ cpdef object last(object seq)
 cpdef object rest(object seq)
 
 
+cpdef object get(object ind, object seq, object default=*)
+
+
 cpdef inline object cons(object el, object seq)
 
 

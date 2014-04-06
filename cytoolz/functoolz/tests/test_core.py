@@ -1,8 +1,8 @@
-from coolz.functoolz import (thread_first, thread_last, memoize, curry,
-                             compose, pipe, complement, do, juxt)
-from coolz.functoolz.core import _num_required_args
+from cytoolz.functoolz import (thread_first, thread_last, memoize, curry,
+                               compose, pipe, complement, do, juxt)
+from cytoolz.functoolz.core import _num_required_args
 from operator import add, mul, itemgetter
-from coolz.utils import raises
+from cytoolz.utils import raises
 from functools import partial
 from toolz.compatibility import reduce
 

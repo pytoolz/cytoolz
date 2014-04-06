@@ -1,4 +1,4 @@
-from coolz.utils import raises
+from cytoolz.utils import raises
 
 
 def test_raises():

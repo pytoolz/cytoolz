@@ -1,15 +1,16 @@
 import itertools
-from coolz.utils import raises
+from cytoolz.utils import raises
 from functools import partial
-from coolz.itertoolz.core import (remove, groupby,
-                                  concat, concatv, unique,
-                                  identity, isiterable,
-                                  isdistinct, first, second,
-                                  nth, take, drop, interpose,
-                                  rest, last, cons, frequencies,
-                                  reduceby, iterate, accumulate,
-                                  count, partition,
-                                  take_nth)
+from cytoolz.itertoolz.core import (remove, groupby,
+                                    concat, concatv, unique,
+                                    identity, isiterable,
+                                    isdistinct, first, second,
+                                    nth, take, drop, interpose, get,
+                                    rest, last, cons, frequencies,
+                                    reduceby, iterate, accumulate,
+                                    count,
+                                    partition,
+                                    take_nth)
 
 from toolz.compatibility import range, filter
 from operator import add, mul
@@ -134,7 +135,6 @@ def test_take_nth():
     assert list(take_nth(2, 'ABCDE')) == list('ACE')
 
 
-'''
 def test_get():
     assert get(1, 'ABCDE') == 'B'
     assert list(get([1, 3], 'ABCDE')) == list('BD')
@@ -148,7 +148,6 @@ def test_get():
     assert raises(IndexError, lambda: get(10, 'ABC'))
     assert raises(KeyError, lambda: get(10, {'a': 1}))
     assert raises(TypeError, lambda: get({}, [1, 2, 3]))
-'''
 
 
 '''

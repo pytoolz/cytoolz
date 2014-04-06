@@ -1,6 +1,6 @@
-from coolz.utils import raises
-from coolz.dicttoolz import (merge, merge_with, valmap, keymap, # update_in,
-                             assoc, keyfilter, valfilter)
+from cytoolz.utils import raises
+from cytoolz.dicttoolz import (merge, merge_with, valmap, keymap, # update_in,
+                               assoc, keyfilter, valfilter)
 
 
 inc = lambda x: x + 1

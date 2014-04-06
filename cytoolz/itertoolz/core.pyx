@@ -603,8 +603,7 @@ cpdef int count(object seq):
 
 no_pad = '__no__pad__'
 
-
-cpdef object partition(int n, object seq, object pad=no_pad):
+cdef class partition:
     """ Partition sequence into tuples of length n
 
     >>> list(partition(2, [1, 2, 3, 4]))
@@ -622,8 +621,31 @@ cpdef object partition(int n, object seq, object pad=no_pad):
     See Also:
         partition_all
     """
-    args = [iter(seq)] * n
-    if pad is no_pad:
-        return zip(*args)
-    else:
-        return izip_longest(*args, fillvalue=pad)
+    def __cinit__(self, int n, object seq, object pad=no_pad):
+        self.n = n
+        self.seq = iter(seq)
+        self.pad = pad
+
+    def __iter__(self):
+        return self
+
+    def __next__(self):
+        cdef tuple result
+        cdef int i
+        cdef object val
+        result = PyTuple_New(self.n)
+        i = 0
+        for val in self.seq:
+            PyTuple_SET_ITEM(result, i, val)
+            i += 1
+            if i == self.n:
+                return result
+
+        if self.pad == no_pad or i == 0:
+            raise StopIteration()
+
+        else:
+            for j in range(i, self.n):
+                PyTuple_SET_ITEM(result, j, self.pad)
+
+        return result

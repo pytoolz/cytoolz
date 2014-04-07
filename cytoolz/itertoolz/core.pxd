@@ -23,6 +23,12 @@ cdef class _unique_identity:
     cdef object seen
 
 
+cdef class partition:
+    cdef int n
+    cdef object seq
+    cdef object pad
+
+
 cpdef object unique(object seq, object key=*)
 
 

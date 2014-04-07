@@ -8,7 +8,6 @@ itertoolz:
     get
     mapcat
     sliding_window
-    partition
     partition_all
     pluck
 

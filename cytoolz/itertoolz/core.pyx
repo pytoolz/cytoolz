@@ -5,7 +5,8 @@ from cpython.ref cimport PyObject, Py_INCREF
 from cpython.sequence cimport PySequence_Check
 from cpython.set cimport PySet_Add, PySet_Contains
 from cpython.tuple cimport PyTuple_New, PyTuple_SET_ITEM
-from itertools import chain, islice
+
+from itertools import chain, islice, izip_longest
 
 from cytoolz.cpython cimport PyObject_GetItem
 
@@ -599,3 +600,53 @@ cpdef int count(object seq):
     for _ in seq:
         i += 1
     return i
+
+
+no_pad = '__no__pad__'
+
+cdef class partition:
+    """ Partition sequence into tuples of length n
+
+    >>> list(partition(2, [1, 2, 3, 4]))
+    [(1, 2), (3, 4)]
+
+    If the length of ``seq`` is not evenly divisible by ``n``, the final tuple
+    is dropped if ``pad`` is not specified, or filled to length ``n`` by pad:
+
+    >>> list(partition(2, [1, 2, 3, 4, 5]))
+    [(1, 2), (3, 4)]
+
+    >>> list(partition(2, [1, 2, 3, 4, 5], pad=None))
+    [(1, 2), (3, 4), (5, None)]
+
+    See Also:
+        partition_all
+    """
+    def __cinit__(self, int n, object seq, object pad=no_pad):
+        self.n = n
+        self.seq = iter(seq)
+        self.pad = pad
+
+    def __iter__(self):
+        return self
+
+    def __next__(self):
+        cdef tuple result
+        cdef int i
+        cdef object val
+        result = PyTuple_New(self.n)
+        i = 0
+        for val in self.seq:
+            PyTuple_SET_ITEM(result, i, val)
+            i += 1
+            if i == self.n:
+                return result
+
+        if self.pad == no_pad or i == 0:
+            raise StopIteration()
+
+        else:
+            for j in range(i, self.n):
+                PyTuple_SET_ITEM(result, j, self.pad)
+
+        return result

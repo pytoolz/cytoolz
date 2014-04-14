@@ -154,7 +154,7 @@ cdef class curry:
 
     See Also:
         cytoolz.curried - namespace of curried functions
-                          http://toolz.readthedocs.org/en/latest/curry.html
+                        http://toolz.readthedocs.org/en/latest/curry.html
     """
     property __doc__:
         def __get__(self):

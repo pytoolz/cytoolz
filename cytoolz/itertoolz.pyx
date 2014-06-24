@@ -24,10 +24,6 @@ __all__ = ['remove', 'accumulate', 'groupby', 'merge_sorted', 'interleave',
            'sliding_window', 'partition', 'partition_all', 'count', 'pluck']
 
 
-concatv = chain
-concat = chain.from_iterable
-
-
 cpdef object identity(object x):
     return x
 
@@ -619,6 +615,41 @@ cpdef object get(object ind, object seq, object default=no_default):
             return default
         raise val
     return <object>obj
+
+
+_concat = chain.from_iterable
+
+
+cpdef object concat(object seqs):
+    """
+    Concatenate zero or more iterables, any of which may be infinite.
+
+    An infinite sequence will prevent the rest of the arguments from
+    being included.
+
+    We use chain.from_iterable rather than chain(*seqs) so that seqs
+    can be a generator.
+
+    >>> list(concat([[], [1], [2, 3]]))
+    [1, 2, 3]
+
+    See also:
+        itertools.chain.from_iterable  equivalent
+    """
+    return _concat(seqs)
+
+
+def concatv(*seqs):
+    """
+    Variadic version of concat
+
+    >>> list(concatv([], ["a"], ["b", "c"]))
+    ['a', 'b', 'c']
+
+    See also:
+        itertools.chain
+    """
+    return _concat(seqs)
 
 
 cpdef object mapcat(object func, object seqs):

@@ -81,6 +81,9 @@ cpdef object rest(object seq)
 cpdef object get(object ind, object seq, object default=*)
 
 
+cpdef object concat(object seqs)
+
+
 cpdef object cons(object el, object seq)
 
 

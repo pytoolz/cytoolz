@@ -54,8 +54,7 @@ else:
     suffix = '.c'
 
 ext_modules = []
-for modname in ['dicttoolz', 'functoolz', 'itertoolz',
-                'curried_exceptions', 'recipes', 'utils']:
+for modname in ['dicttoolz', 'functoolz', 'itertoolz', 'recipes', 'utils']:
     ext_modules.append(Extension('cytoolz.' + modname,
                                  ['cytoolz/' + modname + suffix]))
 

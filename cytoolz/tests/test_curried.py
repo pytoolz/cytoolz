@@ -1,6 +1,7 @@
 import cytoolz
 import cytoolz.curried
 from cytoolz.curried import take, first, second, sorted, merge_with, reduce
+from cytoolz.utils import raises
 from operator import add
 
 
@@ -30,3 +31,8 @@ def test_reduce():
 
 def test_module_name():
     assert cytoolz.curried.__name__ == 'cytoolz.curried'
+
+
+def test_raises_typeerror():
+    badmap = cytoolz.curried.map(1)([1, 2])
+    assert raises(TypeError, lambda: list(badmap))

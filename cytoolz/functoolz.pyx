@@ -149,9 +149,95 @@ cpdef object _num_required_args(object func):
     return None
 
 
-cdef class curry:
-    """ curry(self, func, *args, **kwargs)
+cdef class Curry:
+    """ Curry(self, func, args, kwargs, numargs=None)
 
+    A curried function
+
+    See Also:
+        curry
+    """
+    def __cinit__(self, func, args, kwargs, numargs=None):
+        if not PyCallable_Check(func):
+            raise TypeError("Input must be callable")
+
+        self._numargs = numargs
+
+        # curry- or functools.partial-like object?  Unpack and merge arguments
+        if (hasattr(func, 'func')
+                and hasattr(func, 'args')
+                and hasattr(func, 'keywords')
+                and isinstance(func.args, tuple)):
+            if func.keywords:
+                PyDict_Merge(kwargs, func.keywords, False)
+                ## Equivalent to:
+                # for key, val in func.keywords.items():
+                #     if key not in kwargs:
+                #         kwargs[key] = val
+            args = PySequence_Concat(func.args, args)
+            func = func.func
+
+        self.func = func
+        self.args = args
+        self.keywords = kwargs if kwargs else None
+        self.__doc__ = getattr(func, '__doc__', None)
+        self.__name__ = getattr(func, '__name__', '<curry>')
+
+    def __str__(self):
+        return str(self.func)
+
+    def __repr__(self):
+        return repr(self.func)
+
+    def __hash__(self):
+        return hash((self.func, self.args,
+                     frozenset(self.keywords.items()) if self.keywords
+                     else None))
+
+    def __richcmp__(self, other, int op):
+        is_equal = (isinstance(other, Curry) and self.func == other.func and
+                self.args == other.args and self.keywords == other.keywords)
+        if op == Py_EQ:
+            return is_equal
+        if op == Py_NE:
+            return not is_equal
+        return PyObject_RichCompare(id(self), id(other), op)
+
+    def __call__(self, *args, **kwargs):
+        cdef PyObject *obj
+
+        if PyTuple_GET_SIZE(args) == 0:
+            args = self.args
+        elif PyTuple_GET_SIZE(self.args) != 0:
+            args = PySequence_Concat(self.args, args)
+        if self.keywords is not None:
+            PyDict_Merge(kwargs, self.keywords, False)
+
+        if self._numargs is not None:
+            if PyTuple_GET_SIZE(args) >= <Py_ssize_t>self._numargs:
+                return PyObject_Call(self.func, args, kwargs)
+            else:
+                return Curry(self.func, args, kwargs, numargs=self._numargs)
+
+        obj = PtrObject_Call(self.func, args, kwargs)
+        if obj is not NULL:
+            return <object>obj
+
+        val = <object>PyErr_Occurred()
+        if PyErr_ExceptionMatches(TypeError):
+            PyErr_Clear()
+            required_args = _num_required_args(self.func)
+            # If there was a genuine TypeError
+            if required_args is None or PyTuple_GET_SIZE(args) < <Py_ssize_t>required_args:
+                return Curry(self.func, args, kwargs)
+        raise val
+
+    def __reduce__(self):
+        return (Curry, (self.func, self.args, self.keywords, self._numargs))
+
+
+def curry(func, *args, **kwargs):
+    """
     Curry a callable function
 
     Enables partial application of arguments through calling a function with an
@@ -175,84 +261,24 @@ cdef class curry:
     >>> add(2, 3)
     5
 
+    There is one special keyword argument, ``numargs``, that can specify
+    at creation the minimum number of required positional arguments.
+    This can be useful when currying extention types or functions with
+    variadic arguments:
+
+    >>> def combine_with(func, *seqs):
+    ...     return map(func, zip(*seqs))
+    >>> combine_with = curry(combine_with, numargs=2)
+    >>> add_sequences = combine_with(sum)
+    >>> list(add_sequences([1, 2], [10, 20]))
+    [11, 22]
+
     See Also:
         cytoolz.curried - namespace of curried functions
                         http://toolz.readthedocs.org/en/latest/curry.html
     """
-    def __cinit__(self, func, *args, **kwargs):
-        if not PyCallable_Check(func):
-            raise TypeError("Input must be callable")
-
-        # curry- or functools.partial-like object?  Unpack and merge arguments
-        if (hasattr(func, 'func')
-                and hasattr(func, 'args')
-                and hasattr(func, 'keywords')
-                and isinstance(func.args, tuple)):
-            if func.keywords:
-                PyDict_Merge(kwargs, func.keywords, False)
-                ## Equivalent to:
-                # for key, val in func.keywords.items():
-                #     if key not in kwargs:
-                #         kwargs[key] = val
-            args = func.args + args
-            func = func.func
-
-        self.func = func
-        self.args = args
-        self.keywords = kwargs if kwargs else None
-        self.__doc__ = getattr(func, '__doc__', None)
-        self.__name__ = getattr(func, '__name__', '<curry>')
-
-    def __str__(self):
-        return str(self.func)
-
-    def __repr__(self):
-        return repr(self.func)
-
-    def __hash__(self):
-        return hash((self.func, self.args,
-                     frozenset(self.keywords.items()) if self.keywords
-                     else None))
-
-    def __richcmp__(self, other, int op):
-        is_equal = (isinstance(other, curry) and self.func == other.func and
-                self.args == other.args and self.keywords == other.keywords)
-        if op == Py_EQ:
-            return is_equal
-        if op == Py_NE:
-            return not is_equal
-        return PyObject_RichCompare(id(self), id(other), op)
-
-    def __call__(self, *args, **kwargs):
-        cdef PyObject *obj
-        cdef object val
-
-        if PyTuple_GET_SIZE(args) == 0:
-            args = self.args
-        elif PyTuple_GET_SIZE(self.args) != 0:
-            args = PySequence_Concat(self.args, args)
-        if self.keywords is not None:
-            PyDict_Merge(kwargs, self.keywords, False)
-
-        obj = PtrObject_Call(self.func, args, kwargs)
-        if obj is not NULL:
-            val = <object>obj
-            return val
-
-        val = <object>PyErr_Occurred()
-        if PyErr_ExceptionMatches(TypeError):
-            PyErr_Clear()
-            required_args = _num_required_args(self.func)
-            # If there was a genuine TypeError
-            if required_args is None or len(args) < required_args:
-                return curry(self.func, *args, **kwargs)
-        raise val
-
-    def __reduce__(self):
-        return (curry, (self.func,), (self.args, self.keywords))
-
-    def __setstate__(self, state):
-        self.args, self.keywords = state
+    numargs = kwargs.pop('numargs', None)
+    return Curry(func, args, kwargs, numargs=numargs)
 
 
 cpdef object has_kwargs(object f):

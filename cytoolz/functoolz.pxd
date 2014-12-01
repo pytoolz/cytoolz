@@ -7,12 +7,14 @@ cdef object c_thread_first(object val, object forms)
 cdef object c_thread_last(object val, object forms)
 
 
-cdef class curry:
+cdef class Curry:
     cdef readonly object func
     cdef readonly tuple args
     cdef readonly dict keywords
     cdef public object __doc__
     cdef public object __name__
+    cdef public object _numargs
+
 
 cdef class c_memoize:
     cdef object func

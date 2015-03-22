@@ -3,7 +3,7 @@ from cytoolz.itertoolz cimport (
     frequencies, interleave, interpose, isdistinct, isiterable, iterate,
     last, mapcat, nth, partition, partition_all, pluck, reduceby, remove,
     rest, second, sliding_window, take, tail, take_nth, unique, join,
-    topk)
+    diff, topk)
 
 
 from cytoolz.functoolz cimport (

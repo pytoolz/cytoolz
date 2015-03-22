@@ -11,7 +11,7 @@ from cytoolz.itertoolz import (remove, groupby, merge_sorted,
                              reduceby, iterate, accumulate,
                              sliding_window, count, partition,
                              partition_all, take_nth, pluck, join,
-                             topk)
+                             diff, topk)
 from cytoolz.compatibility import range, filter
 from operator import add, mul
 
@@ -417,6 +417,37 @@ def test_outer_join():
     expected = set([(2, 2), (1, None), (None, 3)])
 
     assert result == expected
+
+
+def test_diff():
+    assert raises(TypeError, lambda: list(diff()))
+    assert raises(TypeError, lambda: list(diff([1, 2])))
+    assert raises(TypeError, lambda: list(diff([1, 2], 3)))
+    assert list(diff([1, 2], (1, 2), iter([1, 2]))) == []
+    assert list(diff([1, 2, 3], (1, 10, 3), iter([1, 2, 10]))) == [
+        (2, 10, 2), (3, 3, 10)]
+    assert list(diff([1, 2], [10])) == [(1, 10)]
+    assert list(diff([1, 2], [10], default=None)) == [(1, 10), (2, None)]
+    # non-variadic usage
+    assert raises(TypeError, lambda: list(diff([])))
+    assert raises(TypeError, lambda: list(diff([[]])))
+    assert raises(TypeError, lambda: list(diff([[1, 2]])))
+    assert raises(TypeError, lambda: list(diff([[1, 2], 3])))
+    assert list(diff([(1, 2), (1, 3)])) == [(2, 3)]
+
+    data1 = [{'cost': 1, 'currency': 'dollar'},
+             {'cost': 2, 'currency': 'dollar'}]
+
+    data2 = [{'cost': 100, 'currency': 'yen'},
+             {'cost': 300, 'currency': 'yen'}]
+
+    conversions = {'dollar': 1, 'yen': 0.01}
+
+    def indollars(item):
+        return conversions[item['currency']] * item['cost']
+
+    list(diff(data1, data2, key=indollars)) == [
+        ({'cost': 2, 'currency': 'dollar'}, {'cost': 300, 'currency': 'yen'})]
 
 
 def test_topk():

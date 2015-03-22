@@ -278,6 +278,12 @@ def test_itertoolz():
     assert raises(TypeError, lambda: join(first, (1, 2, 3), second, None))
     tested.append('join')
 
+    assert raises(TypeError, lambda: list(diff(None)))
+    assert raises(TypeError, lambda: list(diff([1, 2], None)))
+    assert raises(TypeError, lambda: list(diff(None, default=9)))
+    assert raises(TypeError, lambda: list(diff([1, 2], None, default=9)))
+    tested.append('diff')
+
     assert raises(TypeError, lambda: topk(None, [1, 2, 3]))
     assert raises(TypeError, lambda: topk(3, None))
     tested.append('topk')

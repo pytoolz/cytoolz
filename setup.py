@@ -56,9 +56,9 @@ else:
 
 ext_modules = []
 for modname in ['dicttoolz', 'functoolz', 'itertoolz',
-                'curried/exceptions', 'recipes', 'utils']:
+                'curried.exceptions', 'recipes', 'utils']:
     ext_modules.append(Extension('cytoolz.' + modname,
-                                 ['cytoolz/' + modname + suffix]))
+                                 ['cytoolz/' + modname.replace('.', '/') + suffix]))
 
 if use_cython:
     from Cython.Compiler.Options import directive_defaults

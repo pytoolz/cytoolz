@@ -59,10 +59,7 @@ for modname in ['dicttoolz', 'functoolz', 'itertoolz', 'recipes', 'utils']:
                                  ['cytoolz/' + modname + suffix]))
 
 if use_cython:
-    from Cython.Compiler.Options import directive_defaults
-    directive_defaults['embedsignature'] = True
-    directive_defaults['binding'] = True
-    ext_modules = cythonize(ext_modules)
+    ext_modules = cythonize(ext_modules, compiler_directives={'embedsignature': True, 'binding': True})
 
 setup(
     name='cytoolz',

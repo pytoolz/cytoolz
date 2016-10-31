@@ -1,3 +1,3 @@
-cython>=0.17
+cython>=0.21
 nose
 -e git+https://github.com/pytoolz/toolz.git

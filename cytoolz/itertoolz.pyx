@@ -959,8 +959,11 @@ cdef class sliding_window:
     """
     def __cinit__(self, Py_ssize_t n, object seq):
         cdef Py_ssize_t i
+        cdef object none = None
         self.iterseq = iter(seq)
         self.prev = PyTuple_New(n)
+        Py_INCREF(none)
+        PyTuple_SET_ITEM(self.prev, 0, none)
         for i in range(1, n):
             seq = next(self.iterseq)
             Py_INCREF(seq)
@@ -1041,7 +1044,8 @@ cdef class partition_all:
     def __next__(self):
         cdef tuple result
         cdef object item
-        cdef Py_ssize_t i = 0
+        cdef object none = None
+        cdef Py_ssize_t i = 0, j
         result = PyTuple_New(self.n)
         for item in self.iterseq:
             Py_INCREF(item)
@@ -1052,7 +1056,13 @@ cdef class partition_all:
         # iterable exhausted before filling the tuple
         if i == 0:
             raise StopIteration
-        return PyTuple_GetSlice(result, 0, i)
+        # fill in the rest of the tuple
+        j = i
+        while i < self.n:
+            Py_INCREF(none)
+            PyTuple_SET_ITEM(result, i, none)
+            i += 1
+        return PyTuple_GetSlice(result, 0, j)
 
 
 cpdef object count(object seq):

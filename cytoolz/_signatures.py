@@ -10,7 +10,7 @@ cytoolz_info['cytoolz.dicttoolz'] = dict(
     assoc_in=[
         lambda d, keys, value, factory=dict: None],
     dissoc=[
-        lambda d, *keys: None],
+        lambda d, *keys, **kwargs: None],
     get_in=[
         lambda keys, coll, default=None, no_default=False: None],
     itemfilter=[
@@ -34,11 +34,15 @@ cytoolz_info['cytoolz.dicttoolz'] = dict(
 )
 
 cytoolz_info['cytoolz.functoolz'] = dict(
+    apply=[
+        lambda *func_and_args, **kwargs: None],
     Compose=[
         lambda *funcs: None],
     complement=[
         lambda func: None],
     compose=[
+        lambda *funcs: None],
+    compose_left=[
         lambda *funcs: None],
     curry=[
         lambda *args, **kwargs: None],
@@ -125,6 +129,8 @@ cytoolz_info['cytoolz.itertoolz'] = dict(
         lambda n, seq: None],
     peek=[
         lambda seq: None],
+    peekn=[
+        lambda n, seq: None],
     pluck=[
         lambda ind, seqs, default=None: None],
     random_sample=[

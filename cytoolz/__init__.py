@@ -8,8 +8,6 @@ from .recipes import *
 
 from .compatibility import map, filter
 
-# from . import sandbox
-
 from functools import partial, reduce
 
 sorted = sorted
@@ -20,6 +18,8 @@ comp = compose
 # Always-curried functions
 flip = functoolz.flip = curry(functoolz.flip)
 memoize = functoolz.memoize = curry(functoolz.memoize)
+
+from . import curried  # sandbox
 
 functoolz._sigs.update_signature_registry()
 

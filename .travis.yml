@@ -1,19 +1,20 @@
 language: python
 python:
-    - "2.6"
     - "2.7"
-    - "3.3"
     - "3.4"
     - "3.5"
     - "3.6"
     - "3.7-dev"
 
+# Enable 3.7 without globally enabling sudo and dist: xenial for other build jobs
 matrix:
-    allow_failures:
-        - python: "3.7-dev"
+    include:
+    - python: 3.7
+      dist: xenial
+      sudo: true
 
 before_install:
-    - pip install toolz==0.9.0
+    - pip install toolz==0.10.0
     - pip install pytest
 
 install:

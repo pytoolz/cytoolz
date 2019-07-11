@@ -118,6 +118,10 @@ def test_functoolz():
     assert raises(TypeError, lambda: compose(None, None)())
     tested.append('compose')
 
+    assert compose_left(None) is None
+    assert raises(TypeError, lambda: compose_left(None, None)())
+    tested.append('compose_left')
+
     assert raises(TypeError, lambda: curry(None))
     tested.append('curry')
 
@@ -146,6 +150,10 @@ def test_functoolz():
 
     assert flip(lambda a, b: (a, b))(None)(None) == (None, None)
     tested.append('flip')
+
+    assert apply(identity, None) is None
+    assert raises(TypeError, lambda: apply(None))
+    tested.append('apply')
 
     excepts(None, lambda x: x)
     excepts(TypeError, None)
@@ -301,6 +309,10 @@ def test_itertoolz():
 
     assert raises(TypeError, lambda: peek(None))
     tested.append('peek')
+
+    assert raises(TypeError, lambda: peekn(None, [1, 2, 3]))
+    assert raises(TypeError, lambda: peekn(3, None))
+    tested.append('peekn')
 
     assert raises(TypeError, lambda: list(random_sample(None, [1])))
     assert raises(TypeError, lambda: list(random_sample(0.1, None)))

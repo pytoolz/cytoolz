@@ -24,7 +24,7 @@ __all__ = ['remove', 'accumulate', 'groupby', 'merge_sorted', 'interleave',
            'first', 'second', 'nth', 'last', 'get', 'concat', 'concatv',
            'mapcat', 'cons', 'interpose', 'frequencies', 'reduceby', 'iterate',
            'sliding_window', 'partition', 'partition_all', 'count', 'pluck',
-           'join', 'tail', 'diff', 'topk', 'peek', 'random_sample']
+           'join', 'tail', 'diff', 'topk', 'peek', 'peekn', 'random_sample']
 
 
 cpdef object identity(object x):
@@ -135,6 +135,8 @@ cpdef dict groupby(object key, object seq):
     {'F': [{'gender': 'F', 'name': 'Alice'}],
      'M': [{'gender': 'M', 'name': 'Bob'},
            {'gender': 'M', 'name': 'Charlie'}]}
+
+    Not to be confused with ``itertools.groupby``
 
     See Also:
         countby
@@ -962,8 +964,7 @@ cdef class sliding_window:
         cdef Py_ssize_t i
         self.iterseq = iter(seq)
         self.prev = PyTuple_New(n)
-        for i in range(1, n):
-            seq = next(self.iterseq)
+        for i, seq in enumerate(islice(self.iterseq, n-1), 1):
             Py_INCREF(seq)
             PyTuple_SET_ITEM(self.prev, i, seq)
         self.n = n
@@ -975,14 +976,15 @@ cdef class sliding_window:
         cdef tuple current
         cdef object item
         cdef Py_ssize_t i
+
+        item = next(self.iterseq)
         current = PyTuple_New(self.n)
+        Py_INCREF(item)
+        PyTuple_SET_ITEM(current, self.n-1, item)
         for i in range(1, self.n):
             item = self.prev[i]
             Py_INCREF(item)
             PyTuple_SET_ITEM(current, i-1, item)
-        item = next(self.iterseq)
-        Py_INCREF(item)
-        PyTuple_SET_ITEM(current, self.n-1, item)
         self.prev = current
         return current
 
@@ -1252,6 +1254,8 @@ cpdef object join(object leftkey, object leftseq,
     This is a semi-streaming operation.  The LEFT sequence is fully evaluated
     and placed into memory.  The RIGHT sequence is evaluated lazily and so can
     be arbitrarily large.
+    (Note: If right_default is defined, then unique keys of rightseq
+        will also be stored in memory.)
 
     >>> friends = [('Alice', 'Edith'),
     ...            ('Alice', 'Zhao'),
@@ -1294,7 +1298,10 @@ cpdef object join(object leftkey, object leftseq,
 
     Usually the key arguments are callables to be applied to the sequences.  If
     the keys are not obviously callable then it is assumed that indexing was
-    intended, e.g. the following is a legal change
+    intended, e.g. the following is a legal change.
+    The join is implemented as a hash join and the keys of leftseq must be
+    hashable. Additionally, if right_default is defined, then keys of rightseq
+    must also be hashable.
 
     >>> # result = join(second, friends, first, cities)
     >>> result = join(1, friends, 0, cities)  # doctest: +SKIP
@@ -1725,6 +1732,25 @@ cpdef object peek(object seq):
     iterator = iter(seq)
     item = next(iterator)
     return item, chain((item,), iterator)
+
+
+cpdef object peekn(Py_ssize_t n, object seq):
+    """
+    Retrieve the next n elements of a sequence
+
+    Returns a tuple of the first n elements and an iterable equivalent
+    to the original, still having the elements retrieved.
+
+    >>> seq = [0, 1, 2, 3, 4]
+    >>> first_two, seq = peekn(2, seq)
+    >>> first_two
+    (0, 1)
+    >>> list(seq)
+    [0, 1, 2, 3, 4]
+    """
+    iterator = iter(seq)
+    peeked = tuple(take(n, iterator))
+    return peeked, chain(iter(peeked), iterator)
 
 
 cdef class random_sample:

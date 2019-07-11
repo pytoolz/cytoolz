@@ -26,15 +26,16 @@ See Also:
 import cytoolz
 from . import operator
 from cytoolz import (
+    apply,
     comp,
     complement,
     compose,
+    compose_left,
     concat,
     concatv,
     count,
     curry,
     diff,
-    dissoc,
     first,
     flip,
     frequencies,
@@ -59,6 +60,7 @@ assoc = cytoolz.curry(cytoolz.assoc)
 assoc_in = cytoolz.curry(cytoolz.assoc_in)
 cons = cytoolz.curry(cytoolz.cons)
 countby = cytoolz.curry(cytoolz.countby)
+dissoc = cytoolz.curry(cytoolz.dissoc)
 do = cytoolz.curry(cytoolz.do)
 drop = cytoolz.curry(cytoolz.drop)
 excepts = cytoolz.curry(cytoolz.excepts)
@@ -80,6 +82,7 @@ partial = cytoolz.curry(cytoolz.partial)
 partition = cytoolz.curry(cytoolz.partition)
 partition_all = cytoolz.curry(cytoolz.partition_all)
 partitionby = cytoolz.curry(cytoolz.partitionby)
+peekn = cytoolz.curry(cytoolz.peekn)
 pluck = cytoolz.curry(cytoolz.pluck)
 random_sample = cytoolz.curry(cytoolz.random_sample)
 reduce = cytoolz.curry(cytoolz.reduce)

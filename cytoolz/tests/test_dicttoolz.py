@@ -1,7 +1,9 @@
 from collections import defaultdict as _defaultdict
+import os
 from cytoolz.dicttoolz import (merge, merge_with, valmap, keymap, update_in,
                              assoc, dissoc, keyfilter, valfilter, itemmap,
                              itemfilter, assoc_in)
+from cytoolz.functoolz import identity
 from cytoolz.utils import raises
 from cytoolz.compatibility import PY3
 
@@ -90,16 +92,16 @@ class TestDict(object):
 
     def test_dissoc(self):
         D, kw = self.D, self.kw
-        assert dissoc(D({"a": 1}), "a") == D({})
-        assert dissoc(D({"a": 1, "b": 2}), "a") == D({"b": 2})
-        assert dissoc(D({"a": 1, "b": 2}), "b") == D({"a": 1})
-        assert dissoc(D({"a": 1, "b": 2}), "a", "b") == D({})
-        assert dissoc(D({"a": 1}), "a") == dissoc(dissoc(D({"a": 1}), "a"), "a")
+        assert dissoc(D({"a": 1}), "a", **kw) == D({})
+        assert dissoc(D({"a": 1, "b": 2}), "a", **kw) == D({"b": 2})
+        assert dissoc(D({"a": 1, "b": 2}), "b", **kw) == D({"a": 1})
+        assert dissoc(D({"a": 1, "b": 2}), "a", "b", **kw) == D({})
+        assert dissoc(D({"a": 1}), "a", **kw) == dissoc(dissoc(D({"a": 1}), "a", **kw), "a", **kw)
 
         # Verify immutability:
         d = D({'x': 1})
         oldd = d
-        d2 = dissoc(d, 'x')
+        d2 = dissoc(d, 'x', **kw)
         assert d is oldd
         assert d2 is not oldd
 
@@ -250,3 +252,10 @@ class TestCustomMapping(TestDict):
     """
     D = CustomMapping
     kw = {'factory': lambda: CustomMapping()}
+
+
+def test_environ():
+    # See: https://github.com/pycytoolz/cycytoolz/issues/127
+    assert keymap(identity, os.environ) == os.environ
+    assert valmap(identity, os.environ) == os.environ
+    assert itemmap(identity, os.environ) == os.environ

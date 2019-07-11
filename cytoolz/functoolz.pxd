@@ -38,6 +38,9 @@ cdef class Compose:
 cdef object c_compose(object funcs)
 
 
+cdef object c_compose_left(object funcs)
+
+
 cdef object c_pipe(object data, object funcs)
 
 

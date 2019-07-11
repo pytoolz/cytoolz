@@ -3,8 +3,9 @@ import sys
 from functools import partial
 from operator import attrgetter
 from textwrap import dedent
+from types import MethodType
 from cytoolz.utils import no_default
-from cytoolz.compatibility import PY3, PY33, PY34, filter as ifilter, map as imap, reduce, import_module
+from cytoolz.compatibility import PY3, PY34, filter as ifilter, map as imap, reduce, import_module
 import cytoolz._signatures as _sigs
 
 from toolz.functoolz import (InstanceProperty, instanceproperty, is_arity,
@@ -21,13 +22,30 @@ from cpython.set cimport PyFrozenSet_New
 from cpython.tuple cimport PyTuple_Check, PyTuple_GET_SIZE
 
 
-__all__ = ['identity', 'thread_first', 'thread_last', 'memoize', 'compose',
+__all__ = ['identity', 'thread_first', 'thread_last', 'memoize', 'compose', 'compose_left',
            'pipe', 'complement', 'juxt', 'do', 'curry', 'memoize', 'flip',
-           'excepts']
+           'excepts', 'apply']
 
 
 cpdef object identity(object x):
     return x
+
+
+def apply(*func_and_args, **kwargs):
+    """
+    Applies a function and returns the results
+
+    >>> def double(x): return 2*x
+    >>> def inc(x):    return x + 1
+    >>> apply(double, 5)
+    10
+
+    >>> tuple(map(apply, [double, inc, double], [10, 500, 8000]))
+    (20, 501, 16000)
+    """
+    if not func_and_args:
+        raise TypeError('func argument is required')
+    return func_and_args[0](*func_and_args[1:], **kwargs)
 
 
 cdef object c_thread_first(object val, object forms):
@@ -294,13 +312,7 @@ cdef class curry:
 
     property __signature__:
         def __get__(self):
-            try:
-                sig = inspect.signature(self.func)
-            except TypeError:
-                if PY33 and (getattr(self.func, '__module__') or '').startswith('cytoolz.'):
-                    raise ValueError('callable %r is not supported by signature' % self.func)
-                raise
-
+            sig = inspect.signature(self.func)
             args = self.args or ()
             keywords = self.keywords or {}
             if is_partial_args(self.func, args, keywords, sig) is False:
@@ -499,6 +511,41 @@ cdef class Compose:
     def __setstate__(self, state):
         self.funcs = state
 
+    def __repr__(self):
+        return '{.__class__.__name__}{!r}'.format(
+            self, tuple(reversed((self.first, ) + self.funcs)))
+
+    def __eq__(self, other):
+        if isinstance(other, Compose):
+            return other.first == self.first and other.funcs == self.funcs
+        return NotImplemented
+
+    def __ne__(self, other):
+        if isinstance(other, Compose):
+            return other.first != self.first or other.funcs != self.funcs
+        return NotImplemented
+
+    def __hash__(self):
+        return hash(self.first) ^ hash(self.funcs)
+
+    def __get__(self, obj, objtype):
+        if obj is None:
+            return self
+        elif PY3:
+            return MethodType(self, obj)
+        else:
+            return MethodType(self, obj, objtype)
+
+    property __wrapped__:
+        def __get__(self):
+            return self.first
+
+    property __signature__:
+        def __get__(self):
+            base = inspect.signature(self.first)
+            last = inspect.signature(self.funcs[-1])
+            return base.replace(return_annotation=last.return_annotation)
+
     property __name__:
         def __get__(self):
             try:
@@ -554,9 +601,41 @@ def compose(*funcs):
     '4'
 
     See Also:
+        compose_left
         pipe
     """
     return c_compose(funcs)
+
+
+cdef object c_compose_left(object funcs):
+    if not funcs:
+        return identity
+    elif len(funcs) == 1:
+        return funcs[0]
+    else:
+        return Compose(*reversed(funcs))
+
+
+def compose_left(*funcs):
+    """
+    Compose functions to operate in series.
+
+    Returns a function that applies other functions in sequence.
+
+    Functions are applied from left to right so that
+    ``compose_left(f, g, h)(x, y)`` is the same as ``h(g(f(x, y)))``.
+
+    If no arguments are provided, the identity function (f(x) = x) is returned.
+
+    >>> inc = lambda i: i + 1
+    >>> compose_left(inc, str)(3)
+    '4'
+
+    See Also:
+        compose
+        pipe
+    """
+    return c_compose_left(funcs)
 
 
 cdef object c_pipe(object data, object funcs):
@@ -583,6 +662,7 @@ def pipe(data, *funcs):
 
     See Also:
         compose
+        compose_left
         thread_first
         thread_last
     """

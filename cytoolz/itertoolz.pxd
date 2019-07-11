@@ -272,6 +272,9 @@ cpdef object topk(Py_ssize_t k, object seq, object key=*)
 cpdef object peek(object seq)
 
 
+cpdef object peekn(Py_ssize_t n, object seq)
+
+
 cdef class random_sample:
     cdef object iter_seq
     cdef object prob

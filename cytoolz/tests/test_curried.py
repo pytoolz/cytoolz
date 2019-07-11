@@ -2,8 +2,8 @@ import cytoolz
 import cytoolz.curried
 from cytoolz.curried import (take, first, second, sorted, merge_with, reduce,
                            merge, operator as cop)
-from cytoolz.compatibility import import_module
 from collections import defaultdict
+from importlib import import_module
 from operator import add
 
 
@@ -62,7 +62,7 @@ def test_curried_operator():
                 )
 
     # Make sure this isn't totally empty.
-    assert len(set(vars(cop)) & set(['add', 'sub', 'mul'])) == 3
+    assert len(set(vars(cop)) & {'add', 'sub', 'mul'}) == 3
 
 
 def test_curried_namespace():
@@ -79,10 +79,10 @@ def test_curried_namespace():
 
 
     def curry_namespace(ns):
-        return dict(
-            (name, cytoolz.curry(f) if should_curry(f) else f)
+        return {
+            name: cytoolz.curry(f) if should_curry(f) else f
             for name, f in ns.items() if '__' not in name
-        )
+        }
 
     from_cytoolz = curry_namespace(vars(cytoolz))
     from_exceptions = curry_namespace(vars(exceptions))

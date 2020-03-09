@@ -216,6 +216,7 @@ cdef class curry:
         self.__qualname__ = getattr(func, '__qualname__', None)
         self._sigspec = None
         self._has_unknown_args = None
+        self._partial = partial(func, *self.args, **self.keywords)
 
     def __str__(self):
         return str(self.func)
@@ -880,4 +881,3 @@ cdef class excepts:
                 )
             except AttributeError:
                 return type(self).__doc__
-

@@ -1,11 +1,14 @@
 language: python
+arch:
+    - amd64
+    - arm64
+
 python:
-    - "2.7"
-    - "3.4"
     - "3.5"
     - "3.6"
     - "3.7"
     - "3.8"
+    - "3.9-dev"
 
 before_install:
     - pip install toolz==0.10.0

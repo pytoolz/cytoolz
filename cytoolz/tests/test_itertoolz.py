@@ -14,7 +14,6 @@ from cytoolz.itertoolz import (remove, groupby, merge_sorted,
                              sliding_window, count, partition,
                              partition_all, take_nth, pluck, join,
                              diff, topk, peek, peekn, random_sample)
-from cytoolz.compatibility import range, filter
 from operator import add, mul
 
 

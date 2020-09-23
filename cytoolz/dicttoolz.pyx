@@ -1,4 +1,4 @@
-from cpython.dict cimport (PyDict_Check, PyDict_CheckExact, PyDict_GetItem,
+from cpython.dict cimport (PyDict_CheckExact, PyDict_GetItem,
                            PyDict_Merge, PyDict_New, PyDict_Next,
                            PyDict_SetItem, PyDict_Update, PyDict_DelItem)
 from cpython.list cimport PyList_Append, PyList_New
@@ -9,6 +9,7 @@ from cpython.ref cimport PyObject, Py_DECREF, Py_INCREF, Py_XDECREF
 from cytoolz.cpython cimport PyDict_Next_Compat, PtrIter_Next
 
 from copy import copy
+from collections.abc import Mapping
 
 
 __all__ = ['merge', 'merge_with', 'valmap', 'keymap', 'itemmap', 'valfilter',
@@ -112,7 +113,7 @@ def merge(*dicts, **kwargs):
     See Also:
         merge_with
     """
-    if len(dicts) == 1 and not PyDict_Check(dicts[0]):
+    if len(dicts) == 1 and not isinstance(dicts[0], Mapping):
         dicts = dicts[0]
     factory = get_factory('merge', kwargs)
     return c_merge(dicts, factory)
@@ -170,7 +171,8 @@ def merge_with(func, *dicts, **kwargs):
     See Also:
         merge
     """
-    if len(dicts) == 1 and not PyDict_Check(dicts[0]):
+
+    if len(dicts) == 1 and not isinstance(dicts[0], Mapping):
         dicts = dicts[0]
     factory = get_factory('merge_with', kwargs)
     return c_merge_with(func, dicts, factory)

@@ -1,11 +1,11 @@
 import inspect
 import sys
 from functools import partial
+from importlib import import_module
 from operator import attrgetter
 from textwrap import dedent
 from types import MethodType
 from cytoolz.utils import no_default
-from cytoolz.compatibility import PY3, PY34, filter as ifilter, map as imap, reduce, import_module
 import cytoolz._signatures as _sigs
 
 from toolz.functoolz import (InstanceProperty, instanceproperty, is_arity,
@@ -531,10 +531,8 @@ cdef class Compose:
     def __get__(self, obj, objtype):
         if obj is None:
             return self
-        elif PY3:
-            return MethodType(self, obj)
         else:
-            return MethodType(self, obj, objtype)
+            return MethodType(self, obj)
 
     property __wrapped__:
         def __get__(self):

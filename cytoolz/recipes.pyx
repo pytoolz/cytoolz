@@ -2,7 +2,6 @@ from cpython.sequence cimport PySequence_Tuple
 from cytoolz.itertoolz cimport frequencies, pluck
 
 from itertools import groupby
-from cytoolz.compatibility import map
 
 
 __all__ = ['countby', 'partitionby']

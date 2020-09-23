@@ -2,7 +2,6 @@ from cytoolz import *
 import cytoolz
 import cytoolz.curried
 import pickle
-from cytoolz.compatibility import PY3
 from cytoolz.utils import raises
 
 
@@ -114,8 +113,6 @@ class GlobalCurried(object):
 
 
 def test_curried_qualname():
-    if not PY3:
-        return
 
     def preserves_identity(obj):
         return pickle.loads(pickle.dumps(obj)) is obj

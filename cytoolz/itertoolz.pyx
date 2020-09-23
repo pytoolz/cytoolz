@@ -12,10 +12,9 @@ from cytoolz.cpython cimport PtrIter_Next, PtrObject_GetItem
 
 from collections import deque
 from heapq import heapify, heappop, heapreplace
-from itertools import chain, islice
+from itertools import chain, islice, zip_longest
 from operator import itemgetter
 from random import Random
-from cytoolz.compatibility import map, zip, zip_longest
 from cytoolz.utils import no_default
 
 
@@ -1062,7 +1061,7 @@ cpdef object count(object seq):
     """
     Count the number of items in seq
 
-    Like the builtin ``len`` but works on lazy sequencies.
+    Like the builtin ``len`` but works on lazy sequences.
 
     Not to be confused with ``itertools.count``
 

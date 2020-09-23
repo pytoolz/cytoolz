@@ -11,7 +11,7 @@ python:
     - "3.9-dev"
 
 before_install:
-    - pip install toolz==0.10.0
+    - pip install toolz==0.11.0
     - pip install pytest
 
 install:

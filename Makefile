@@ -5,7 +5,7 @@ inplace:
 	$(PYTHON) setup.py build_ext --inplace --cython
 
 test: inplace
-	nosetests -s --with-doctest cytoolz/
+	pytest -s --doctest-modules cytoolz/
 	echo 'cimport cytoolz ; from cytoolz.functoolz cimport memoize' > try_cimport_cytoolz.pyx
 	cythonize -i try_cimport_cytoolz.pyx
 	python -c 'import try_cimport_cytoolz'

@@ -1,0 +1,38 @@
+name: Test
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: ["ubuntu-latest"]
+        python-version: ["3.5", "3.6", "3.7", "3.8", "3.9", "3.10", "pypy-3.6", "pypy-3.7"]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip setuptools wheel
+          pip install cython pytest
+          pip install git+https://github.com/pytoolz/toolz.git
+          python setup.py build_ext --inplace --with-cython
+          pip install -e .
+      - name: PyTest
+        run: |
+          pytest --doctest-modules cytoolz/
+          # For convenience, make sure simple test commands work
+          pytest
+          # Make sure we can cimport cytoolz
+          echo 'cimport cytoolz ; from cytoolz.functoolz cimport memoize' > try_cimport_cytoolz.pyx
+          cythonize -i try_cimport_cytoolz.pyx
+          python -c 'import try_cimport_cytoolz'

@@ -53,8 +53,13 @@ def test_class_sigs():
             *toolz_spec,
             **{'formatvalue': lambda x: '=' + getattr(x, '__name__', repr(x))}
         )
+        # Hmm, Cython is showing str as unicode, such as `default=u'__no__default__'`
+        toolz_sig_alt2 = toolz_func.__name__ + inspect.formatargspec(
+            *toolz_spec,
+            **{'formatvalue': lambda x: '=u' + getattr(x, '__name__', repr(x))}
+        )
         doc_alt = doc.replace('Py_ssize_t ', '')
-        if not (toolz_sig in doc or toolz_sig_alt in doc_alt):
+        if not (toolz_sig in doc or toolz_sig_alt in doc_alt or toolz_sig_alt2 in doc_alt):
             message = ('cytoolz.%s does not have correct function signature.'
                        '\n\nExpected: %s'
                        '\n\nDocstring in cytoolz is:\n%s'

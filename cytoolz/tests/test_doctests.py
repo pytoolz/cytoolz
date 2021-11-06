@@ -1,4 +1,4 @@
-from cytoolz.utils_test import module_doctest
+import doctest
 
 import cytoolz
 import cytoolz.dicttoolz
@@ -7,9 +7,13 @@ import cytoolz.itertoolz
 import cytoolz.recipes
 
 
+def module_doctest(m, *args, **kwargs):
+    return doctest.testmod(m, *args, **kwargs).failed == 0
+
+
 def test_doctest():
-    assert module_doctest(cytoolz) is True
-    assert module_doctest(cytoolz.dicttoolz) is True
-    assert module_doctest(cytoolz.functoolz) is True
-    assert module_doctest(cytoolz.itertoolz) is True
-    assert module_doctest(cytoolz.recipes) is True
+    assert module_doctest(cytoolz)
+    assert module_doctest(cytoolz.dicttoolz)
+    assert module_doctest(cytoolz.functoolz)
+    assert module_doctest(cytoolz.itertoolz)
+    assert module_doctest(cytoolz.recipes)

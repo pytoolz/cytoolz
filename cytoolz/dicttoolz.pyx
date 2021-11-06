@@ -1,5 +1,5 @@
-from cpython.dict cimport (PyDict_CheckExact, PyDict_GetItem,
-                           PyDict_Merge, PyDict_New, PyDict_Next,
+from cpython.dict cimport (PyDict_Check, PyDict_CheckExact, PyDict_GetItem,
+                           PyDict_New, PyDict_Next,
                            PyDict_SetItem, PyDict_Update, PyDict_DelItem)
 from cpython.list cimport PyList_Append, PyList_New
 from cpython.object cimport PyObject_SetItem
@@ -67,9 +67,6 @@ cdef f_map_next get_map_iter(object d, PyObject* *ptr) except NULL:
     if PyDict_CheckExact(d):
         val = d
         rv = &PyDict_Next_Compat
-    elif hasattr(d, 'iteritems'):
-        val = _iter_mapping(iter(d.iteritems()))
-        rv = &PyMapping_Next
     else:
         val = _iter_mapping(iter(d.items()))
         rv = &PyMapping_Next
@@ -576,4 +573,3 @@ cpdef object get_in(object keys, object coll, object default=None, object no_def
         if no_default:
             raise
         return default
-

@@ -382,6 +382,10 @@ cdef class interleave:
         return val
 
 
+cdef class _iter_seq_key:
+    def __iter__(self):
+        return self
+
 cdef class _unique_key:
     def __cinit__(self, object seq, object key):
         self.iter_seq = iter(seq)
@@ -399,6 +403,25 @@ cdef class _unique_key:
             item = next(self.iter_seq)
             tag = self.key(item)
         PySet_Add(self.seen, tag)
+        return item
+
+cdef class _nonunique_key:
+    def __cinit__(self, object seq, object key):
+        self.iter_seq = iter(seq)
+        self.key = key
+        self.seen = set()
+
+    def __iter__(self):
+        return self
+
+    def __next__(self):
+        cdef object item, tag
+        item = next(self.iter_seq)
+        tag = self.key(item)
+        while not PySet_Contains(self.seen, tag):
+            PySet_Add(self.seen, tag)
+            item = next(self.iter_seq)
+            tag = self.key(item)
         return item
 
 
@@ -419,6 +442,22 @@ cdef class _unique_identity:
         return item
 
 
+cdef class _nonunique_identity:
+    def __cinit__(self, object seq):
+        self.iter_seq = iter(seq)
+        self.seen = set()
+
+    def __iter__(self):
+        return self
+
+    def __next__(self):
+        cdef object item
+        item = next(self.iter_seq)
+        while not PySet_Contains(self.seen, item):
+            PySet_Add(self.seen, item)
+            item = next(self.iter_seq)
+        return item
+
 cpdef object unique(object seq, object key=None):
     """
     Return only unique elements of a sequence
@@ -432,11 +471,31 @@ cpdef object unique(object seq, object key=None):
 
     >>> tuple(unique(['cat', 'mouse', 'dog', 'hen'], key=len))
     ('cat', 'mouse')
+
+    See also:
+        nonunique
     """
     if key is None:
         return _unique_identity(seq)
     else:
         return _unique_key(seq, key)
+
+
+cpdef object nonunique(object seq, object key=None):
+    """Return only the nonunique/duplicated elements of a sequence.
+
+    >>> tuple(nonunique((1, 2, 3, 1)))
+    (1,)
+    >>> tuple(nonunique((1, 2, 3)))
+    ()
+
+    See also:
+        unique
+    """
+    if key is None:
+        return _nonunique_identity(seq)
+    else:
+        return _nonunique_key(seq, key)
 
 
 cpdef object isiterable(object x):
@@ -473,11 +532,8 @@ cpdef object isdistinct(object seq):
     True
     """
     if iter(seq) is seq:
-        seen = set()
-        for item in seq:
-            if PySet_Contains(seen, item):
-                return False
-            seen.add(item)
+        for item in _nonunique_identity(seq):
+            return False
         return True
     else:
         return len(seq) == len(set(seq))

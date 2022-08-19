@@ -1,7 +1,7 @@
 from cpython.dict cimport PyDict_GetItem, PyDict_SetItem
 from cpython.exc cimport PyErr_Clear, PyErr_GivenExceptionMatches, PyErr_Occurred
 from cpython.list cimport PyList_Append, PyList_GET_ITEM, PyList_GET_SIZE
-from cpython.object cimport PyObject_RichCompareBool, Py_NE
+from cpython.object cimport PyObject_RichCompareBool, Py_NE, PyObject_HasAttr
 from cpython.ref cimport PyObject, Py_INCREF, Py_XDECREF
 from cpython.sequence cimport PySequence_Check
 from cpython.set cimport PySet_Add, PySet_Contains
@@ -450,11 +450,8 @@ cpdef object isiterable(object x):
     >>> isiterable(5)
     False
     """
-    try:
-        iter(x)
+    if PyObject_HasAttr(x, "__iter__"):
         return True
-    except TypeError:
-        pass
     return False
 
 

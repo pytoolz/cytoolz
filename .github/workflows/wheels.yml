@@ -1,0 +1,225 @@
+name: Build wheels
+
+on:
+  # pull_request:  # Uncomment to debug wheel building in a PR
+  push:
+    branches:
+      - master
+    tags:
+      - '[0-9]+.[0-9]+.[0-9]+*'
+
+jobs:
+  wheels:
+    name: "Build ${{ matrix.build }} wheel"
+    runs-on: ${{ matrix.os }}-latest
+    defaults:
+      run:
+        shell: bash -l {0}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          # # Automaticaly generated via code below.  See build and arch tables here:
+          # # Builds: https://cibuildwheel.readthedocs.io/en/stable/options/#build-skip
+          # # Archs: https://cibuildwheel.readthedocs.io/en/stable/options/#archs
+          # # This probably isn't the preferred way to do things :shrug:
+          #
+          # # PyPy may have issues.  Intermittent failures have been seen on:
+          # # pp37-manylinux_aarch64 pp38-win_amd64
+          #
+          # pys = ['cp36', 'cp37', 'cp38', 'cp39', 'cp310']
+          # pys_arm = ['cp38', 'cp39', 'cp310']
+          # pypys = ['pp37', 'pp38', 'pp39']
+          # SKIP = set()  # {"pp37-manylinux_aarch64", "pp38-win_amd64"}
+          # combos = []
+          #
+          # # Linux
+          # for py, dist, arch in itertools.product(
+          #     pys,
+          #     ['manylinux', 'musllinux'],
+          #     ['x86_64', 'i686', 'aarch64', 'ppc64le', 's390x']
+          # ):
+          #     combos.append(('ubuntu', f'{py}-{dist}_{arch}', arch))
+          # for py, arch in itertools.product(pypys, ['x86_64', 'i686', 'aarch64']):
+          #     combos.append(('ubuntu', f'{py}-manylinux_{arch}', arch))
+          #
+          # # MacOS
+          # for py in pys:
+          #     combos.append(('macos', f'{py}-macosx_x86_64', 'x86_64'))
+          # for py in pys_arm:
+          #     combos.append(('macos', f'{py}-macosx_arm64', 'arm64'))
+          # for py in pypys:
+          #     combos.append(('macos', f'{py}-macosx_x86_64', 'x86_64'))
+          #
+          # # Windows (win_arm64 skipped for now)
+          # for py in pys:
+          #     combos.append(('windows', f'{py}-win32', 'x86'))
+          # for py in pys:
+          #     combos.append(('windows', f'{py}-win_amd64', 'AMD64'))
+          # for py in pypys:
+          #     combos.append(('windows', f'{py}-win_amd64', 'AMD64'))
+          #
+          # # Sort, filter, and print combinations
+          # for os, build, arch in sorted(combos, key=lambda x: (x[0], x[1].replace('310', '390'), x[2])):
+          #     skip = "# " if build in SKIP else ""
+          #     print(f'        {skip}- {{"os": "{os}", "build": "{build}", "arch": "{arch}"}}')
+          - {"os": "macos", "build": "cp36-macosx_x86_64", "arch": "x86_64"}
+          - {"os": "macos", "build": "cp37-macosx_x86_64", "arch": "x86_64"}
+          - {"os": "macos", "build": "cp38-macosx_arm64", "arch": "arm64"}
+          - {"os": "macos", "build": "cp38-macosx_x86_64", "arch": "x86_64"}
+          - {"os": "macos", "build": "cp39-macosx_arm64", "arch": "arm64"}
+          - {"os": "macos", "build": "cp39-macosx_x86_64", "arch": "x86_64"}
+          - {"os": "macos", "build": "cp310-macosx_arm64", "arch": "arm64"}
+          - {"os": "macos", "build": "cp310-macosx_x86_64", "arch": "x86_64"}
+          - {"os": "macos", "build": "pp37-macosx_x86_64", "arch": "x86_64"}
+          - {"os": "macos", "build": "pp38-macosx_x86_64", "arch": "x86_64"}
+          - {"os": "macos", "build": "pp39-macosx_x86_64", "arch": "x86_64"}
+          - {"os": "ubuntu", "build": "cp36-manylinux_aarch64", "arch": "aarch64"}
+          - {"os": "ubuntu", "build": "cp36-manylinux_i686", "arch": "i686"}
+          - {"os": "ubuntu", "build": "cp36-manylinux_ppc64le", "arch": "ppc64le"}
+          - {"os": "ubuntu", "build": "cp36-manylinux_s390x", "arch": "s390x"}
+          - {"os": "ubuntu", "build": "cp36-manylinux_x86_64", "arch": "x86_64"}
+          - {"os": "ubuntu", "build": "cp36-musllinux_aarch64", "arch": "aarch64"}
+          - {"os": "ubuntu", "build": "cp36-musllinux_i686", "arch": "i686"}
+          - {"os": "ubuntu", "build": "cp36-musllinux_ppc64le", "arch": "ppc64le"}
+          - {"os": "ubuntu", "build": "cp36-musllinux_s390x", "arch": "s390x"}
+          - {"os": "ubuntu", "build": "cp36-musllinux_x86_64", "arch": "x86_64"}
+          - {"os": "ubuntu", "build": "cp37-manylinux_aarch64", "arch": "aarch64"}
+          - {"os": "ubuntu", "build": "cp37-manylinux_i686", "arch": "i686"}
+          - {"os": "ubuntu", "build": "cp37-manylinux_ppc64le", "arch": "ppc64le"}
+          - {"os": "ubuntu", "build": "cp37-manylinux_s390x", "arch": "s390x"}
+          - {"os": "ubuntu", "build": "cp37-manylinux_x86_64", "arch": "x86_64"}
+          - {"os": "ubuntu", "build": "cp37-musllinux_aarch64", "arch": "aarch64"}
+          - {"os": "ubuntu", "build": "cp37-musllinux_i686", "arch": "i686"}
+          - {"os": "ubuntu", "build": "cp37-musllinux_ppc64le", "arch": "ppc64le"}
+          - {"os": "ubuntu", "build": "cp37-musllinux_s390x", "arch": "s390x"}
+          - {"os": "ubuntu", "build": "cp37-musllinux_x86_64", "arch": "x86_64"}
+          - {"os": "ubuntu", "build": "cp38-manylinux_aarch64", "arch": "aarch64"}
+          - {"os": "ubuntu", "build": "cp38-manylinux_i686", "arch": "i686"}
+          - {"os": "ubuntu", "build": "cp38-manylinux_ppc64le", "arch": "ppc64le"}
+          - {"os": "ubuntu", "build": "cp38-manylinux_s390x", "arch": "s390x"}
+          - {"os": "ubuntu", "build": "cp38-manylinux_x86_64", "arch": "x86_64"}
+          - {"os": "ubuntu", "build": "cp38-musllinux_aarch64", "arch": "aarch64"}
+          - {"os": "ubuntu", "build": "cp38-musllinux_i686", "arch": "i686"}
+          - {"os": "ubuntu", "build": "cp38-musllinux_ppc64le", "arch": "ppc64le"}
+          - {"os": "ubuntu", "build": "cp38-musllinux_s390x", "arch": "s390x"}
+          - {"os": "ubuntu", "build": "cp38-musllinux_x86_64", "arch": "x86_64"}
+          - {"os": "ubuntu", "build": "cp39-manylinux_aarch64", "arch": "aarch64"}
+          - {"os": "ubuntu", "build": "cp39-manylinux_i686", "arch": "i686"}
+          - {"os": "ubuntu", "build": "cp39-manylinux_ppc64le", "arch": "ppc64le"}
+          - {"os": "ubuntu", "build": "cp39-manylinux_s390x", "arch": "s390x"}
+          - {"os": "ubuntu", "build": "cp39-manylinux_x86_64", "arch": "x86_64"}
+          - {"os": "ubuntu", "build": "cp39-musllinux_aarch64", "arch": "aarch64"}
+          - {"os": "ubuntu", "build": "cp39-musllinux_i686", "arch": "i686"}
+          - {"os": "ubuntu", "build": "cp39-musllinux_ppc64le", "arch": "ppc64le"}
+          - {"os": "ubuntu", "build": "cp39-musllinux_s390x", "arch": "s390x"}
+          - {"os": "ubuntu", "build": "cp39-musllinux_x86_64", "arch": "x86_64"}
+          - {"os": "ubuntu", "build": "cp310-manylinux_aarch64", "arch": "aarch64"}
+          - {"os": "ubuntu", "build": "cp310-manylinux_i686", "arch": "i686"}
+          - {"os": "ubuntu", "build": "cp310-manylinux_ppc64le", "arch": "ppc64le"}
+          - {"os": "ubuntu", "build": "cp310-manylinux_s390x", "arch": "s390x"}
+          - {"os": "ubuntu", "build": "cp310-manylinux_x86_64", "arch": "x86_64"}
+          - {"os": "ubuntu", "build": "cp310-musllinux_aarch64", "arch": "aarch64"}
+          - {"os": "ubuntu", "build": "cp310-musllinux_i686", "arch": "i686"}
+          - {"os": "ubuntu", "build": "cp310-musllinux_ppc64le", "arch": "ppc64le"}
+          - {"os": "ubuntu", "build": "cp310-musllinux_s390x", "arch": "s390x"}
+          - {"os": "ubuntu", "build": "cp310-musllinux_x86_64", "arch": "x86_64"}
+          # Intermittent segfault on pp37-manylinux_aarch64 in test_dicttoolz.py:test_merge_with
+          - {"os": "ubuntu", "build": "pp37-manylinux_aarch64", "arch": "aarch64"}
+          - {"os": "ubuntu", "build": "pp37-manylinux_i686", "arch": "i686"}
+          - {"os": "ubuntu", "build": "pp37-manylinux_x86_64", "arch": "x86_64"}
+          - {"os": "ubuntu", "build": "pp38-manylinux_aarch64", "arch": "aarch64"}
+          - {"os": "ubuntu", "build": "pp38-manylinux_i686", "arch": "i686"}
+          - {"os": "ubuntu", "build": "pp38-manylinux_x86_64", "arch": "x86_64"}
+          - {"os": "ubuntu", "build": "pp39-manylinux_aarch64", "arch": "aarch64"}
+          - {"os": "ubuntu", "build": "pp39-manylinux_i686", "arch": "i686"}
+          - {"os": "ubuntu", "build": "pp39-manylinux_x86_64", "arch": "x86_64"}
+          - {"os": "windows", "build": "cp36-win32", "arch": "x86"}
+          - {"os": "windows", "build": "cp36-win_amd64", "arch": "AMD64"}
+          - {"os": "windows", "build": "cp37-win32", "arch": "x86"}
+          - {"os": "windows", "build": "cp37-win_amd64", "arch": "AMD64"}
+          - {"os": "windows", "build": "cp38-win32", "arch": "x86"}
+          - {"os": "windows", "build": "cp38-win_amd64", "arch": "AMD64"}
+          - {"os": "windows", "build": "cp39-win32", "arch": "x86"}
+          - {"os": "windows", "build": "cp39-win_amd64", "arch": "AMD64"}
+          - {"os": "windows", "build": "cp310-win32", "arch": "x86"}
+          - {"os": "windows", "build": "cp310-win_amd64", "arch": "AMD64"}
+          - {"os": "windows", "build": "pp37-win_amd64", "arch": "AMD64"}
+          - {"os": "windows", "build": "pp38-win_amd64", "arch": "AMD64"}
+          - {"os": "windows", "build": "pp39-win_amd64", "arch": "AMD64"}
+
+    steps:
+      - name: Setup QEMU
+        if: ${{ matrix.os == 'ubuntu' }}
+        uses: docker/setup-qemu-action@v2
+        with:
+          platforms: all
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.x"
+      - name: Build wheels
+        uses: pypa/cibuildwheel@v2.8.1
+        env:
+          CIBW_BUILD: ${{ matrix.build }}
+          CIBW_ARCHS: ${{ matrix.arch }}
+      - name: List wheels
+        run: |
+          ls -al wheelhouse/
+      - name: Upload wheels
+        uses: actions/upload-artifact@v3
+        with:
+          name: dist
+          path: wheelhouse/*.whl
+          retention-days: 7
+
+  sdist:
+    name: Build source distribution
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash -l {0}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.8"
+      - name: Install build dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install setuptools wheel cython
+      - name: Build sdist
+        run: python setup.py sdist
+      - name: Upload sdist
+        uses: actions/upload-artifact@v3
+        with:
+          name: dist
+          path: dist/*.tar.gz
+          retention-days: 7
+
+  upload_all:
+    needs: [wheels, sdist]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download dist artifacts
+        uses: actions/download-artifact@v3
+        with:
+          name: dist
+          path: dist
+      - name: List artifacts
+        run: |
+          ls -al dist/
+      - name: Publish to PyPI
+        uses: pypa/gh-action-pypi-publish@v1.5.1
+        if: startsWith(github.ref, 'refs/tags/')
+        with:
+          user: __token__
+          password: ${{ secrets.PYPI_TOKEN }}

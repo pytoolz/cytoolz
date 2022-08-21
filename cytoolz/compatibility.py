@@ -3,7 +3,7 @@ warnings.warn("The toolz.compatibility module is no longer "
               "needed in Python 3 and has been deprecated. Please "
               "import these utilities directly from the standard library. "
               "This module will be removed in a future release.",
-              category=DeprecationWarning)
+              category=DeprecationWarning, stacklevel=2)
 
 import operator
 import sys
@@ -15,6 +15,7 @@ PYPY = hasattr(sys, 'pypy_version_info') and PY3
 __all__ = ('map', 'filter', 'range', 'zip', 'reduce', 'zip_longest',
            'iteritems', 'iterkeys', 'itervalues', 'filterfalse',
            'PY3', 'PY34', 'PYPY')
+
 
 map = map
 filter = filter

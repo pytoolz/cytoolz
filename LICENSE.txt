@@ -1,4 +1,4 @@
-Copyright (c) 2014 Erik Welch
+Copyright (c) 2014-2021 Erik Welch
 
 All rights reserved.
 

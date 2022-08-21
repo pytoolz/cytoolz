@@ -3,7 +3,6 @@ import sys
 from functools import partial
 from importlib import import_module
 from operator import attrgetter
-from textwrap import dedent
 from types import MethodType
 from cytoolz.utils import no_default
 import cytoolz._signatures as _sigs
@@ -692,26 +691,9 @@ cdef class complement:
         return (complement, (self.func,))
 
 
-cdef class _juxt_inner:
-    def __cinit__(self, funcs):
-        self.funcs = tuple(funcs)
+cdef class juxt:
+    """ juxt(self, *funcs)
 
-    def __call__(self, *args, **kwargs):
-        if kwargs:
-            return tuple(PyObject_Call(func, args, kwargs) for func in self.funcs)
-        else:
-            return tuple(PyObject_CallObject(func, args) for func in self.funcs)
-
-    def __reduce__(self):
-        return (_juxt_inner, (self.funcs,))
-
-
-cdef object c_juxt(object funcs):
-    return _juxt_inner(funcs)
-
-
-def juxt(*funcs):
-    """
     Creates a function that calls several functions with the same arguments
 
     Takes several functions and returns a function that applies its arguments
@@ -727,9 +709,19 @@ def juxt(*funcs):
     >>> juxt([inc, double])(10)
     (11, 20)
     """
-    if len(funcs) == 1 and not PyCallable_Check(funcs[0]):
-        funcs = funcs[0]
-    return c_juxt(funcs)
+    def __cinit__(self, *funcs):
+        if len(funcs) == 1 and not PyCallable_Check(funcs[0]):
+            funcs = funcs[0]
+        self.funcs = tuple(funcs)
+
+    def __call__(self, *args, **kwargs):
+        if kwargs:
+            return tuple(PyObject_Call(func, args, kwargs) for func in self.funcs)
+        else:
+            return tuple(PyObject_CallObject(func, args) for func in self.funcs)
+
+    def __reduce__(self):
+        return (juxt, (self.funcs,))
 
 
 cpdef object do(object func, object x):
@@ -797,7 +789,8 @@ cpdef object return_none(object exc):
 
 
 cdef class excepts:
-    """
+    """ excepts(self, exc, func, handler=return_none)
+
     A wrapper around a function to catch exceptions and
     dispatch to a handler.
 
@@ -826,7 +819,7 @@ cdef class excepts:
     1
     """
 
-    def __init__(self, exc, func, handler=return_none):
+    def __cinit__(self, exc, func, handler=return_none):
         self.exc = exc
         self.func = func
         self.handler = handler

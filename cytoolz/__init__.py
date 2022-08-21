@@ -23,4 +23,10 @@ from . import curried  # sandbox
 
 functoolz._sigs.update_signature_registry()
 
-from ._version import __version__, __toolz_version__
+# What version of toolz does cytoolz implement?
+__toolz_version__ = '0.12.0'
+
+from ._version import get_versions
+
+__version__ = get_versions()['version']
+del get_versions

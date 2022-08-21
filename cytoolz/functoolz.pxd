@@ -48,11 +48,8 @@ cdef class complement:
     cdef object func
 
 
-cdef class _juxt_inner:
+cdef class juxt:
     cdef public tuple funcs
-
-
-cdef object c_juxt(object funcs)
 
 
 cpdef object do(object func, object x)

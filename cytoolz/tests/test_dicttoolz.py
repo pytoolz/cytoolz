@@ -265,7 +265,6 @@ def test_merge_with_non_dict_mappings():
             return len(self.d)
 
     d = Foo({1: 1})
-    rv = merge(d)
 
     assert merge(d) is d or merge(d) == {1: 1}
     assert merge_with(sum, d) == {1: 1}

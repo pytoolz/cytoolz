@@ -1,3 +1,11 @@
+recursive-include cytoolz *
 include LICENSE.txt
-
+include setup.py
+include README.rst
+include Makefile
+include MANIFEST.in
+include pyproject.toml
+include versioneer.py
 include cytoolz/tests/*.py
+include cytoolz/_version.py
+global-exclude *.pyc *~ *.bak *.swp *.swo *.pyo *.so

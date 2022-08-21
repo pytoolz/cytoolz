@@ -1,7 +1,7 @@
 import inspect
 import cytoolz
 
-from types import BuiltinFunctionType
+from types import BuiltinFunctionType, FunctionType
 from cytoolz import curry, identity, keyfilter, valfilter, merge_with
 from dev_skip_test import dev_skip_test
 
@@ -30,31 +30,38 @@ def test_class_sigs():
     toolz_dict = keyfilter(lambda x: x in cytoolz_dict, toolz_dict)
     cytoolz_dict = keyfilter(lambda x: x in toolz_dict, cytoolz_dict)
 
+    class wrap:
+        """e.g., allow `factory=<class 'dict'>` to instead be `factory=dict` in signature"""
+        def __init__(self, obj):
+            self.obj = obj
+
+        def __repr__(self):
+            return getattr(self.obj, '__name__', repr(self.obj))
+
     d = merge_with(identity, toolz_dict, cytoolz_dict)
     for key, (toolz_func, cytoolz_func) in d.items():
-        if key in ['excepts', 'juxt', 'memoize', 'flip']:
-            continue
-        try:
+        if isinstance(toolz_func, FunctionType):
             # function
-            toolz_spec = inspect.getargspec(toolz_func)
-        except TypeError:
-            try:
-                # curried or partial object
-                toolz_spec = inspect.getargspec(toolz_func.func)
-            except (TypeError, AttributeError):
-                # class
-                toolz_spec = inspect.getargspec(toolz_func.__init__)
-
-        # For Cython < 0.25
-        toolz_sig = toolz_func.__name__ + inspect.formatargspec(*toolz_spec)
-        doc = cytoolz_func.__doc__
-        # For Cython >= 0.25
-        toolz_sig_alt = toolz_func.__name__ + inspect.formatargspec(
-            *toolz_spec,
-            **{'formatvalue': lambda x: '=' + getattr(x, '__name__', repr(x))}
+            toolz_spec = inspect.signature(toolz_func)
+        elif isinstance(toolz_func, toolz.curry):
+            # curried object
+            toolz_spec = inspect.signature(toolz_func.func)
+        else:
+            # class
+            toolz_spec = inspect.signature(toolz_func.__init__)
+        toolz_spec = toolz_spec.replace(
+            parameters=[
+                v.replace(default=wrap(v.default))
+                if v.default is not inspect._empty
+                else v
+                for v in toolz_spec.parameters.values()
+            ]
         )
-        doc_alt = doc.replace('Py_ssize_t ', '')
-        if not (toolz_sig in doc or toolz_sig_alt in doc_alt):
+        # Hmm, Cython is showing str as unicode, such as `default=u'__no__default__'`
+        doc = cytoolz_func.__doc__
+        doc_alt = doc.replace('Py_ssize_t ', '').replace("=u'", "='")
+        toolz_sig = toolz_func.__name__ +  str(toolz_spec)
+        if not (toolz_sig in doc or toolz_sig in doc_alt):
             message = ('cytoolz.%s does not have correct function signature.'
                        '\n\nExpected: %s'
                        '\n\nDocstring in cytoolz is:\n%s'

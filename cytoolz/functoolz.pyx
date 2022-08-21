@@ -310,43 +310,43 @@ cdef class curry:
             return self
         return type(self)(self, instance)
 
-    property __signature__:
-        def __get__(self):
-            sig = inspect.signature(self.func)
-            args = self.args or ()
-            keywords = self.keywords or {}
-            if is_partial_args(self.func, args, keywords, sig) is False:
-                raise TypeError('curry object has incorrect arguments')
+    @property
+    def __signature__(self):
+        sig = inspect.signature(self.func)
+        args = self.args or ()
+        keywords = self.keywords or {}
+        if is_partial_args(self.func, args, keywords, sig) is False:
+            raise TypeError('curry object has incorrect arguments')
 
-            params = list(sig.parameters.values())
-            skip = 0
-            for param in params[:len(args)]:
-                if param.kind == param.VAR_POSITIONAL:
-                    break
-                skip += 1
+        params = list(sig.parameters.values())
+        skip = 0
+        for param in params[:len(args)]:
+            if param.kind == param.VAR_POSITIONAL:
+                break
+            skip += 1
 
-            kwonly = False
-            newparams = []
-            for param in params[skip:]:
-                kind = param.kind
-                default = param.default
-                if kind == param.VAR_KEYWORD:
-                    pass
-                elif kind == param.VAR_POSITIONAL:
-                    if kwonly:
-                        continue
-                elif param.name in keywords:
-                    default = keywords[param.name]
+        kwonly = False
+        newparams = []
+        for param in params[skip:]:
+            kind = param.kind
+            default = param.default
+            if kind == param.VAR_KEYWORD:
+                pass
+            elif kind == param.VAR_POSITIONAL:
+                if kwonly:
+                    continue
+            elif param.name in keywords:
+                default = keywords[param.name]
+                kind = param.KEYWORD_ONLY
+                kwonly = True
+            else:
+                if kwonly:
                     kind = param.KEYWORD_ONLY
-                    kwonly = True
-                else:
-                    if kwonly:
-                        kind = param.KEYWORD_ONLY
-                    if default is param.empty:
-                        default = no_default
-                newparams.append(param.replace(default=default, kind=kind))
+                if default is param.empty:
+                    default = no_default
+            newparams.append(param.replace(default=default, kind=kind))
 
-            return sig.replace(parameters=newparams)
+        return sig.replace(parameters=newparams)
 
     def __reduce__(self):
         func = self.func
@@ -430,17 +430,17 @@ cpdef object memoize(object func, object cache=None, object key=None):
 
 cdef class _memoize:
 
-    property __doc__:
-        def __get__(self):
-            return self.func.__doc__
+    @property
+    def __doc__(self):
+        return self.func.__doc__
 
-    property __name__:
-        def __get__(self):
-            return self.func.__name__
+    @property
+    def __name__(self):
+        return self.func.__name__
 
-    property __wrapped__:
-        def __get__(self):
-            return self.func
+    @property
+    def __wrapped__(self):
+        return self.func
 
     def __cinit__(self, func, cache, key):
         self.func = func
@@ -534,44 +534,44 @@ cdef class Compose:
         else:
             return MethodType(self, obj)
 
-    property __wrapped__:
-        def __get__(self):
-            return self.first
+    @property
+    def __wrapped__(self):
+        return self.first
 
-    property __signature__:
-        def __get__(self):
-            base = inspect.signature(self.first)
-            last = inspect.signature(self.funcs[-1])
-            return base.replace(return_annotation=last.return_annotation)
+    @property
+    def __signature__(self):
+        base = inspect.signature(self.first)
+        last = inspect.signature(self.funcs[-1])
+        return base.replace(return_annotation=last.return_annotation)
 
-    property __name__:
-        def __get__(self):
-            try:
-                return '_of_'.join(
-                    f.__name__ for f in reversed((self.first,) + self.funcs)
-                )
-            except AttributeError:
-                return type(self).__name__
+    @property
+    def __name__(self):
+        try:
+            return '_of_'.join(
+                f.__name__ for f in reversed((self.first,) + self.funcs)
+            )
+        except AttributeError:
+            return type(self).__name__
 
-    property __doc__:
-        def __get__(self):
-            def composed_doc(*fs):
-                """Generate a docstring for the composition of fs.
-                """
-                if not fs:
-                    # Argument name for the docstring.
-                    return '*args, **kwargs'
+    @property
+    def __doc__(self):
+        def composed_doc(*fs):
+            """Generate a docstring for the composition of fs.
+            """
+            if not fs:
+                # Argument name for the docstring.
+                return '*args, **kwargs'
 
-                return '{f}({g})'.format(f=fs[0].__name__, g=composed_doc(*fs[1:]))
+            return '{f}({g})'.format(f=fs[0].__name__, g=composed_doc(*fs[1:]))
 
-            try:
-                return (
-                    'lambda *args, **kwargs: ' +
-                    composed_doc(*reversed((self.first,) + self.funcs))
-                )
-            except AttributeError:
-                # One of our callables does not have a `__name__`, whatever.
-                return 'A composition of functions'
+        try:
+            return (
+                'lambda *args, **kwargs: ' +
+                composed_doc(*reversed((self.first,) + self.funcs))
+            )
+        except AttributeError:
+            # One of our callables does not have a `__name__`, whatever.
+            return 'A composition of functions'
 
 
 cdef object c_compose(object funcs):
@@ -837,45 +837,44 @@ cdef class excepts:
         except self.exc as e:
             return self.handler(e)
 
-    property __name__:
-        def __get__(self):
-            exc = self.exc
-            try:
-                if isinstance(exc, tuple):
-                    exc_name = '_or_'.join(map(attrgetter('__name__'), exc))
-                else:
-                    exc_name = exc.__name__
-                return '%s_excepting_%s' % (self.func.__name__, exc_name)
-            except AttributeError:
-                return 'excepting'
+    @property
+    def __name__(self):
+        exc = self.exc
+        try:
+            if isinstance(exc, tuple):
+                exc_name = '_or_'.join(map(attrgetter('__name__'), exc))
+            else:
+                exc_name = exc.__name__
+            return '%s_excepting_%s' % (self.func.__name__, exc_name)
+        except AttributeError:
+            return 'excepting'
 
-    property __doc__:
-        def __get__(self):
-            exc = self.exc
-            try:
-                if isinstance(exc, tuple):
-                    exc_name = '(%s)' % ', '.join(
-                        map(attrgetter('__name__'), exc),
-                    )
-                else:
-                    exc_name = exc.__name__
-
-                return dedent(
-                    """\
-                    A wrapper around {inst.func.__name__!r} that will except:
-                    {exc}
-                    and handle any exceptions with {inst.handler.__name__!r}.
-
-                    Docs for {inst.func.__name__!r}:
-                    {inst.func.__doc__}
-
-                    Docs for {inst.handler.__name__!r}:
-                    {inst.handler.__doc__}
-                    """
-                ).format(
-                    inst=self,
-                    exc=exc_name,
+    @property
+    def __doc__(self):
+        exc = self.exc
+        try:
+            if isinstance(exc, tuple):
+                exc_name = '(%s)' % ', '.join(
+                    map(attrgetter('__name__'), exc),
                 )
-            except AttributeError:
-                return type(self).__doc__
+            else:
+                exc_name = exc.__name__
 
+            return dedent(
+                """\
+                A wrapper around {inst.func.__name__!r} that will except:
+                {exc}
+                and handle any exceptions with {inst.handler.__name__!r}.
+
+                Docs for {inst.func.__name__!r}:
+                {inst.func.__doc__}
+
+                Docs for {inst.handler.__name__!r}:
+                {inst.handler.__doc__}
+                """
+            ).format(
+                inst=self,
+                exc=exc_name,
+            )
+        except AttributeError:
+            return type(self).__doc__

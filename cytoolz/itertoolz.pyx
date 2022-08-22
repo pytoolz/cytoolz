@@ -345,6 +345,7 @@ cdef class interleave:
         _len = PyList_GET_SIZE(iters)
 
         itrobj = <object>PyList_GET_ITEM(iters, self.i)
+        self.i = (self.i + 1) % _len
         obj = PtrIter_Next(itrobj)
 
         while obj is NULL:
@@ -360,8 +361,8 @@ cdef class interleave:
             if self.active == 0:
                 raise StopIteration
 
-            self.i = (self.i + 1) % _len
             itrobj = <object>PyList_GET_ITEM(iters, self.i)
+            self.i = (self.i + 1) % _len
             obj = PtrIter_Next(itrobj)
         val = <object>obj
         Py_XDECREF(obj)

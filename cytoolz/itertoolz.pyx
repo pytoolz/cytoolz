@@ -339,7 +339,7 @@ cdef class interleave:
         cdef object itrobj, val
         cdef list iters
         cdef PyObject *obj
-        cdef int _len
+        cdef Py_ssize_t _len
 
         iters = self.iters
         _len = PyList_GET_SIZE(iters)

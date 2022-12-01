@@ -232,7 +232,7 @@ jobs:
         run: |
           ls -al dist/
       - name: Publish to PyPI
-        uses: pypa/gh-action-pypi-publish@v1.5.1
+        uses: pypa/gh-action-pypi-publish@v1.5.2
         if: startsWith(github.ref, 'refs/tags/')
         with:
           user: __token__

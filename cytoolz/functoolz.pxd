@@ -55,7 +55,7 @@ cdef class juxt:
 cpdef object do(object func, object x)
 
 
-cpdef object flip(object func, object a, object b)
+cpdef object c_flip(object func, tuple args, dict kwargs)
 
 
 cpdef object return_none(object exc)

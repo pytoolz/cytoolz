@@ -751,7 +751,11 @@ cpdef object do(object func, object x):
     return x
 
 
-cpdef object flip(object func, object a, object b):
+cpdef object c_flip(object func, tuple args, dict kwargs):
+    return PyObject_Call(func, tuple(reversed(args)), kwargs)
+
+
+def flip(func, *args, **kwargs):
     """
     Call the function call with the arguments flipped
 
@@ -775,7 +779,7 @@ cpdef object flip(object func, object a, object b):
     >>> only_ints
     [1, 2, 3]
     """
-    return PyObject_CallObject(func, (b, a))
+    return c_flip(func, args, kwargs)
 
 
 _flip = flip  # uncurried

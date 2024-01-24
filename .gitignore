@@ -2,6 +2,7 @@
 *.html
 *.pyc
 *.swp
+*.swo
 *.so
 *.pyd
 build/

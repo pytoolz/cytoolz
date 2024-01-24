@@ -10,6 +10,7 @@ following conditions are true:
     - toolz is the correct version
     - cytoolz is a release version
 """
+import sys
 import cytoolz
 
 istest = lambda func: setattr(func, '__test__', True) or func
@@ -25,8 +26,9 @@ if do_toolz_tests:
     do_toolz_tests = toolz.__version__.startswith(cytoolz.__toolz_version__)
     do_toolz_tests &= '+' not in cytoolz.__version__
 
-# Decorator used to skip tests for developmental versions of CyToolz
-if do_toolz_tests:
+# Decorator used to skip tests for developmental versions of CyToolz.
+# Also, skip these tests on PyPy, which may handle docs differently.
+if do_toolz_tests and sys.implementation.name != "pypy":
     dev_skip_test = istest
 else:
     dev_skip_test = nottest

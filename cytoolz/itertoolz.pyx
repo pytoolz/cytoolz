@@ -1268,7 +1268,7 @@ cpdef object join(object leftkey, object leftseq,
 
     >>> cities = [('Alice', 'NYC'),
     ...           ('Alice', 'Chicago'),
-    ...           ('Dan', 'Syndey'),
+    ...           ('Dan', 'Sydney'),
     ...           ('Edith', 'Paris'),
     ...           ('Edith', 'Berlin'),
     ...           ('Zhao', 'Shanghai')]

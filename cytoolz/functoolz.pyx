@@ -824,6 +824,7 @@ cdef class excepts:
     -1
 
     Multiple exceptions and default except clause.
+
     >>> excepting = excepts((IndexError, KeyError), lambda a: a[0])
     >>> excepting([])
     >>> excepting([1])

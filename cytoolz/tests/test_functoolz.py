@@ -1,4 +1,5 @@
 import inspect
+import sys
 import cytoolz
 from cytoolz.functoolz import (thread_first, thread_last, memoize, curry,
                              compose, compose_left, pipe, complement, do, juxt,
@@ -6,6 +7,12 @@ from cytoolz.functoolz import (thread_first, thread_last, memoize, curry,
 from operator import add, mul, itemgetter
 from cytoolz.utils import raises
 from functools import partial
+
+IS_PYPY_GE_39 = (
+    sys.implementation.name == "pypy"
+    and sys.version_info.major == 3
+    and sys.version_info.minor >= 9
+)
 
 
 def iseven(x):
@@ -253,7 +260,8 @@ def test_curry_docstring():
         return x
 
     g = curry(f)
-    assert g.__doc__ == f.__doc__
+    if not IS_PYPY_GE_39:  # pypy >=3.9 doesn't like __doc__ property
+        assert g.__doc__ == f.__doc__
     assert str(g) == str(f)
     assert f(1, 2) == g(1, 2)
 
@@ -582,14 +590,16 @@ def test_compose_metadata():
 
     composed = compose(f, g)
     assert composed.__name__ == 'f_of_g'
-    assert composed.__doc__ == 'lambda *args, **kwargs: f(g(*args, **kwargs))'
+    if not IS_PYPY_GE_39:  # pypy >=3.9 doesn't like __doc__ property
+        assert composed.__doc__ == 'lambda *args, **kwargs: f(g(*args, **kwargs))'
 
     # Create an object with no __name__.
     h = object()
 
     composed = compose(f, h)
     assert composed.__name__ == 'Compose'
-    assert composed.__doc__ == 'A composition of functions'
+    if not IS_PYPY_GE_39:  # pypy >=3.9 doesn't like __doc__ property
+        assert composed.__doc__ == 'A composition of functions'
 
     assert repr(composed) == 'Compose({!r}, {!r})'.format(f, h)
 
@@ -760,9 +770,10 @@ def test_excepts():
     assert excepting(3) == -1
 
     assert excepting.__name__ == 'idx_excepting_ValueError'
-    assert 'idx docstring' in excepting.__doc__
-    assert 'ValueError' in excepting.__doc__
-    assert 'handler docstring' in excepting.__doc__
+    if not IS_PYPY_GE_39:  # pypy >=3.9 doesn't like __doc__ property
+        assert 'idx docstring' in excepting.__doc__
+        assert 'ValueError' in excepting.__doc__
+        assert 'handler docstring' in excepting.__doc__
 
     def getzero(a):
         """getzero docstring
@@ -776,9 +787,10 @@ def test_excepts():
     assert excepting({0: 1}) == 1
 
     assert excepting.__name__ == 'getzero_excepting_IndexError_or_KeyError'
-    assert 'getzero docstring' in excepting.__doc__
-    assert 'return_none' in excepting.__doc__
-    assert 'Returns None' in excepting.__doc__
+    if not IS_PYPY_GE_39:  # pypy >=3.9 doesn't like __doc__ property
+        assert 'getzero docstring' in excepting.__doc__
+        assert 'return_none' in excepting.__doc__
+        assert 'Returns None' in excepting.__doc__
 
     def raise_(a):
         """A function that raises an instance of the exception type given.

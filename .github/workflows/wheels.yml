@@ -27,8 +27,8 @@ jobs:
           # # PyPy may have issues.  Intermittent failures have been seen on:
           # # pp37-manylinux_aarch64 pp38-win_amd64
           #
-          # pys = ['cp36', 'cp37', 'cp38', 'cp39', 'cp310', 'cp311']
-          # pys_arm = ['cp38', 'cp39', 'cp310', 'cp311']
+          # pys = ['cp37', 'cp38', 'cp39', 'cp310', 'cp311', 'cp312']
+          # pys_arm = ['cp38', 'cp39', 'cp310', 'cp311', 'cp312']
           # pypys = ['pp37', 'pp38', 'pp39', 'pp310']
           # SKIP = set()  # {"pp37-manylinux_aarch64", "pp38-win_amd64"}
           # combos = []
@@ -60,10 +60,9 @@ jobs:
           #     combos.append(('windows', f'{py}-win_amd64', 'AMD64'))
           #
           # # Sort, filter, and print combinations
-          # for os, build, arch in sorted(combos, key=lambda x: (x[0], x[1].replace('310', '390').replace('311', '391'), x[2])):
+          # for os, build, arch in sorted(combos, key=lambda x: (x[0], x[1].replace('310', '390').replace('311', '391').replace('312', '392'), x[2])):
           #     skip = "# " if build in SKIP else ""
           #     print(f'        {skip}- {{"os": "{os}", "build": "{build}", "arch": "{arch}"}}')
-          - {"os": "macos", "build": "cp36-macosx_x86_64", "arch": "x86_64"}
           - {"os": "macos", "build": "cp37-macosx_x86_64", "arch": "x86_64"}
           - {"os": "macos", "build": "cp38-macosx_arm64", "arch": "arm64"}
           - {"os": "macos", "build": "cp38-macosx_x86_64", "arch": "x86_64"}
@@ -73,20 +72,12 @@ jobs:
           - {"os": "macos", "build": "cp310-macosx_x86_64", "arch": "x86_64"}
           - {"os": "macos", "build": "cp311-macosx_arm64", "arch": "arm64"}
           - {"os": "macos", "build": "cp311-macosx_x86_64", "arch": "x86_64"}
+          - {"os": "macos", "build": "cp312-macosx_arm64", "arch": "arm64"}
+          - {"os": "macos", "build": "cp312-macosx_x86_64", "arch": "x86_64"}
           - {"os": "macos", "build": "pp37-macosx_x86_64", "arch": "x86_64"}
           - {"os": "macos", "build": "pp38-macosx_x86_64", "arch": "x86_64"}
-          # - {"os": "macos", "build": "pp39-macosx_x86_64", "arch": "x86_64"}
-          # - {"os": "macos", "build": "pp310-macosx_x86_64", "arch": "x86_64"}
-          - {"os": "ubuntu", "build": "cp36-manylinux_aarch64", "arch": "aarch64"}
-          - {"os": "ubuntu", "build": "cp36-manylinux_i686", "arch": "i686"}
-          - {"os": "ubuntu", "build": "cp36-manylinux_ppc64le", "arch": "ppc64le"}
-          - {"os": "ubuntu", "build": "cp36-manylinux_s390x", "arch": "s390x"}
-          - {"os": "ubuntu", "build": "cp36-manylinux_x86_64", "arch": "x86_64"}
-          - {"os": "ubuntu", "build": "cp36-musllinux_aarch64", "arch": "aarch64"}
-          - {"os": "ubuntu", "build": "cp36-musllinux_i686", "arch": "i686"}
-          - {"os": "ubuntu", "build": "cp36-musllinux_ppc64le", "arch": "ppc64le"}
-          - {"os": "ubuntu", "build": "cp36-musllinux_s390x", "arch": "s390x"}
-          - {"os": "ubuntu", "build": "cp36-musllinux_x86_64", "arch": "x86_64"}
+          - {"os": "macos", "build": "pp39-macosx_x86_64", "arch": "x86_64"}
+          - {"os": "macos", "build": "pp310-macosx_x86_64", "arch": "x86_64"}
           - {"os": "ubuntu", "build": "cp37-manylinux_aarch64", "arch": "aarch64"}
           - {"os": "ubuntu", "build": "cp37-manylinux_i686", "arch": "i686"}
           - {"os": "ubuntu", "build": "cp37-manylinux_ppc64le", "arch": "ppc64le"}
@@ -137,21 +128,28 @@ jobs:
           - {"os": "ubuntu", "build": "cp311-musllinux_ppc64le", "arch": "ppc64le"}
           - {"os": "ubuntu", "build": "cp311-musllinux_s390x", "arch": "s390x"}
           - {"os": "ubuntu", "build": "cp311-musllinux_x86_64", "arch": "x86_64"}
-          # Intermittent segfault on pp37-manylinux_aarch64 in test_dicttoolz.py:test_merge_with
+          - {"os": "ubuntu", "build": "cp312-manylinux_aarch64", "arch": "aarch64"}
+          - {"os": "ubuntu", "build": "cp312-manylinux_i686", "arch": "i686"}
+          - {"os": "ubuntu", "build": "cp312-manylinux_ppc64le", "arch": "ppc64le"}
+          - {"os": "ubuntu", "build": "cp312-manylinux_s390x", "arch": "s390x"}
+          - {"os": "ubuntu", "build": "cp312-manylinux_x86_64", "arch": "x86_64"}
+          - {"os": "ubuntu", "build": "cp312-musllinux_aarch64", "arch": "aarch64"}
+          - {"os": "ubuntu", "build": "cp312-musllinux_i686", "arch": "i686"}
+          - {"os": "ubuntu", "build": "cp312-musllinux_ppc64le", "arch": "ppc64le"}
+          - {"os": "ubuntu", "build": "cp312-musllinux_s390x", "arch": "s390x"}
+          - {"os": "ubuntu", "build": "cp312-musllinux_x86_64", "arch": "x86_64"}
           - {"os": "ubuntu", "build": "pp37-manylinux_aarch64", "arch": "aarch64"}
           - {"os": "ubuntu", "build": "pp37-manylinux_i686", "arch": "i686"}
           - {"os": "ubuntu", "build": "pp37-manylinux_x86_64", "arch": "x86_64"}
           - {"os": "ubuntu", "build": "pp38-manylinux_aarch64", "arch": "aarch64"}
           - {"os": "ubuntu", "build": "pp38-manylinux_i686", "arch": "i686"}
           - {"os": "ubuntu", "build": "pp38-manylinux_x86_64", "arch": "x86_64"}
-          # - {"os": "ubuntu", "build": "pp39-manylinux_aarch64", "arch": "aarch64"}
-          # - {"os": "ubuntu", "build": "pp310-manylinux_aarch64", "arch": "aarch64"}
-          # - {"os": "ubuntu", "build": "pp39-manylinux_i686", "arch": "i686"}
-          # - {"os": "ubuntu", "build": "pp310-manylinux_i686", "arch": "i686"}
-          # - {"os": "ubuntu", "build": "pp39-manylinux_x86_64", "arch": "x86_64"}
-          # - {"os": "ubuntu", "build": "pp310-manylinux_x86_64", "arch": "x86_64"}
-          - {"os": "windows", "build": "cp36-win32", "arch": "x86"}
-          - {"os": "windows", "build": "cp36-win_amd64", "arch": "AMD64"}
+          - {"os": "ubuntu", "build": "pp39-manylinux_aarch64", "arch": "aarch64"}
+          - {"os": "ubuntu", "build": "pp39-manylinux_i686", "arch": "i686"}
+          - {"os": "ubuntu", "build": "pp39-manylinux_x86_64", "arch": "x86_64"}
+          - {"os": "ubuntu", "build": "pp310-manylinux_aarch64", "arch": "aarch64"}
+          - {"os": "ubuntu", "build": "pp310-manylinux_i686", "arch": "i686"}
+          - {"os": "ubuntu", "build": "pp310-manylinux_x86_64", "arch": "x86_64"}
           - {"os": "windows", "build": "cp37-win32", "arch": "x86"}
           - {"os": "windows", "build": "cp37-win_amd64", "arch": "AMD64"}
           - {"os": "windows", "build": "cp38-win32", "arch": "x86"}
@@ -162,27 +160,29 @@ jobs:
           - {"os": "windows", "build": "cp310-win_amd64", "arch": "AMD64"}
           - {"os": "windows", "build": "cp311-win32", "arch": "x86"}
           - {"os": "windows", "build": "cp311-win_amd64", "arch": "AMD64"}
+          - {"os": "windows", "build": "cp312-win32", "arch": "x86"}
+          - {"os": "windows", "build": "cp312-win_amd64", "arch": "AMD64"}
           - {"os": "windows", "build": "pp37-win_amd64", "arch": "AMD64"}
           - {"os": "windows", "build": "pp38-win_amd64", "arch": "AMD64"}
-          # - {"os": "windows", "build": "pp39-win_amd64", "arch": "AMD64"}
-          # - {"os": "windows", "build": "pp310-win_amd64", "arch": "AMD64"}
+          - {"os": "windows", "build": "pp39-win_amd64", "arch": "AMD64"}
+          - {"os": "windows", "build": "pp310-win_amd64", "arch": "AMD64"}
 
     steps:
       - name: Setup QEMU
         if: ${{ matrix.os == 'ubuntu' }}
-        uses: docker/setup-qemu-action@v2
+        uses: docker/setup-qemu-action@v3
         with:
           platforms: all
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0
       - name: Set up Python
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5
         with:
           python-version: "3.x"
       - name: Build wheels
-        uses: pypa/cibuildwheel@v2.14.1
+        uses: pypa/cibuildwheel@v2.16.2
         env:
           CIBW_BUILD: ${{ matrix.build }}
           CIBW_ARCHS: ${{ matrix.arch }}
@@ -204,11 +204,11 @@ jobs:
         shell: bash -l {0}
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0
       - name: Set up Python
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5
         with:
           python-version: "3.8"
       - name: Install build dependencies
@@ -237,7 +237,7 @@ jobs:
         run: |
           ls -al dist/
       - name: Publish to PyPI
-        uses: pypa/gh-action-pypi-publish@v1.8.8
+        uses: pypa/gh-action-pypi-publish@v1.8.11
         if: startsWith(github.ref, 'refs/tags/')
         with:
           user: __token__

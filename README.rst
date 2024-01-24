@@ -48,7 +48,7 @@ Install
 Dependencies
 ------------
 
-``cytoolz`` supports Python 3.6+ with a common codebase.
+``cytoolz`` supports Python 3.7+ with a common codebase.
 It is developed in Cython, but requires no dependecies other than CPython
 and a C compiler.  Like ``toolz``, it is a light weight dependency.
 
@@ -72,7 +72,7 @@ Community
 See our `mailing list <https://groups.google.com/forum/#!forum/pytoolz>`__.
 We're friendly.
 
-.. |Build Status| image:: https://travis-ci.org/pytoolz/cytoolz.svg?branch=master
-   :target: https://travis-ci.org/pytoolz/cytoolz
+.. |Build Status| image:: https://github.com/pytoolz/cytoolz/actions/workflows/test.yml/badge.svg?branch=master
+   :target: https://github.com/pytoolz/cytoolz/actions
 .. |Version Status| image:: https://badge.fury.io/py/cytoolz.svg
    :target: http://badge.fury.io/py/cytoolz

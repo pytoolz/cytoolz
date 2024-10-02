@@ -49,8 +49,10 @@ def test_docstrings_uptodate():
     d = merge_with(identity, toolz_dict, cytoolz_dict)
     for key, (toolz_func, cytoolz_func) in d.items():
         # only check if the new doctstring *contains* the expected docstring
-        toolz_doc = convertdoc(toolz_func)
-        cytoolz_doc = cytoolz_func.__doc__
+        # in Python < 3.13 the second line is indented, in 3.13+
+        # it is not, strip all lines to fudge it
+        toolz_doc = "\n".join((line.strip() for line in convertdoc(toolz_func).splitlines()))
+        cytoolz_doc = "\n".join((line.strip() for line in cytoolz_func.__doc__.splitlines()))
         if toolz_doc not in cytoolz_doc:
             diff = list(differ.compare(toolz_doc.splitlines(),
                                        cytoolz_doc.splitlines()))

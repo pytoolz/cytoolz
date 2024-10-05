@@ -54,9 +54,10 @@ cytoolz_info['cytoolz.functoolz'] = dict(
         lambda: None,
         lambda func: None,
         lambda func, a: None,
-        lambda func, a, b: None],
+        lambda func, a, b: None,
+        lambda func, *args, **kwargs: None],
     _flip=[
-        lambda func, a, b: None],
+        lambda func, *args, **kwargs: None],
     identity=[
         lambda x: None],
     juxt=[

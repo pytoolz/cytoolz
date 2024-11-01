@@ -174,7 +174,7 @@ jobs:
         run: |
           ls -al wheelhouse/
       - name: Upload wheels
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: dist
           path: wheelhouse/*.whl
@@ -202,7 +202,7 @@ jobs:
       - name: Build sdist
         run: python setup.py sdist
       - name: Upload sdist
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: dist
           path: dist/*.tar.gz

@@ -25,6 +25,9 @@ jobs:
           - "pypy3.8"
           - "pypy3.9"
           - "pypy3.10"
+        exclude:
+          - cython-version: "0.29.37"
+            python-version: "3.13"
     steps:
       - name: Checkout
         uses: actions/checkout@v4

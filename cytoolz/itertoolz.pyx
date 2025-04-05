@@ -18,18 +18,23 @@ from cytools import utils
 
 # cdef aliases to eliminate global lookups
 cdef object deque = collections.deque
+del collections
 
 cdef object heapify = heapq.heapify
 cdef object heappop = heapq.heappop
 cdef object heapreplace = heapq.heapreplace
+del heapq
 
 cdef object chain = itertools.chain
 cdef object islice = itertools.islice
 cdef object zip_longest = itertools.zip_longest
+del itertools
 
 cdef object itemgetter = operator.itemgetter
+del operator
 
 cdef object no_default = utils.no_default
+del utils
 
 
 __all__ = ['remove', 'accumulate', 'groupby', 'merge_sorted', 'interleave',

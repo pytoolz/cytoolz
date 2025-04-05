@@ -1,7 +1,11 @@
 from cpython.sequence cimport PySequence_Tuple
 from cytoolz.itertoolz cimport frequencies, pluck
 
-from itertools import groupby
+import itertools
+
+# cdef alias to eliminate global lookups
+cdef object groupby = itertools.groupby
+del itertools
 
 
 __all__ = ['countby', 'partitionby']

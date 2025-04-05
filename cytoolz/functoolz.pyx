@@ -1,16 +1,3 @@
-import inspect
-import sys
-from functools import partial
-from importlib import import_module
-from operator import attrgetter
-from types import MethodType
-from cytoolz.utils import no_default
-import cytoolz._signatures as _sigs
-
-from toolz.functoolz import (InstanceProperty, instanceproperty, is_arity,
-                             num_required_args, has_varargs, has_keywords,
-                             is_valid_args, is_partial_args)
-
 cimport cython
 from cpython.dict cimport PyDict_Merge, PyDict_New
 from cpython.object cimport (PyCallable_Check, PyObject_Call, PyObject_CallObject,
@@ -19,6 +6,48 @@ from cpython.ref cimport PyObject
 from cpython.sequence cimport PySequence_Concat
 from cpython.set cimport PyFrozenSet_New
 from cpython.tuple cimport PyTuple_Check, PyTuple_GET_SIZE
+
+import functools
+import importlib
+import inspect
+import operator
+import types
+from toolz import functoolz as functoolz_py
+
+from cytools import _signatures
+from cytoolz import utils
+
+# cdef aliases to eliminate global lookups
+cdef object partial = functools.partial
+del functools
+
+cdef object import_module = importlib.import_module
+del importlib
+
+cdef object signature = inspect.signature
+del inspect
+
+cdef object attrgetter = operator.attrgetter
+del operator
+
+cdef object MethodType = types.MethodType
+del types
+
+cdef object InstanceProperty = functoolz_py.InstanceProperty
+cdef object instanceproperty = functoolz_py.instanceproperty
+cdef object is_arity = functoolz_py.is_arity
+cdef object num_required_args = functoolz_py.num_required_args
+cdef object has_varargs = functoolz_py.has_varargs
+cdef object has_keywords = functoolz_py.has_keywords
+cdef object is_valid_args = functoolz_py.is_valid_args
+cdef object is_partial_args = functoolz_py.is_partial_args
+del functoolz_py
+
+cdef object no_default = utils.no_default
+del utils
+
+cdef object signature_or_spec = _signatures.signature_or_spec
+del _signatures
 
 
 __all__ = ['identity', 'thread_first', 'thread_last', 'memoize', 'compose', 'compose_left',
@@ -289,7 +318,7 @@ cdef class curry:
         #    kwargs = dict(self.keywords, **kwargs)
 
         if self._sigspec is None:
-            sigspec = self._sigspec = _sigs.signature_or_spec(func)
+            sigspec = self._sigspec = signature_or_spec(func)
             self._has_unknown_args = has_varargs(func, sigspec) is not False
         else:
             sigspec = self._sigspec
@@ -330,7 +359,7 @@ cdef class curry:
 
     property __signature__:
         def __get__(self):
-            sig = inspect.signature(self.func)
+            sig = signature(self.func)
             args = self.args or ()
             keywords = self.keywords or {}
             if is_partial_args(self.func, args, keywords, sig) is False:
@@ -558,8 +587,8 @@ cdef class Compose:
 
     property __signature__:
         def __get__(self):
-            base = inspect.signature(self.first)
-            last = inspect.signature(self.funcs[-1])
+            base = signature(self.first)
+            last = signature(self.funcs[-1])
             return base.replace(return_annotation=last.return_annotation)
 
     property __name__:

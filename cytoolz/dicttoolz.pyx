@@ -8,8 +8,13 @@ from cpython.ref cimport PyObject, Py_DECREF, Py_INCREF, Py_XDECREF
 # Locally defined bindings that differ from `cython.cpython` bindings
 from cytoolz.cpython cimport PyDict_Next_Compat, PtrIter_Next
 
-from copy import copy
-from collections.abc import Mapping
+from collections import abc
+
+
+# cdef aliases to eliminate global lookups
+
+cdef object Mapping = abc.Mapping
+del abc
 
 
 __all__ = ['merge', 'merge_with', 'valmap', 'keymap', 'itemmap', 'valfilter',

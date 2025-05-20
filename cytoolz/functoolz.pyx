@@ -17,7 +17,7 @@ from toolz import functoolz as functoolz_py
 from cytools import _signatures
 from cytoolz import utils
 
-# cdef aliases to eliminate global lookups
+# cdef constants to eliminate global lookups
 cdef object partial = functools.partial
 del functools
 

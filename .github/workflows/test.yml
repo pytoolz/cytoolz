@@ -22,9 +22,11 @@ jobs:
           - "3.11"
           - "3.12"
           - "3.13"
+          - "3.14-dev"
           - "pypy3.8"
           - "pypy3.9"
           - "pypy3.10"
+          - "pypy3.11"
         exclude:
           - cython-version: "0.29.37"
             python-version: "3.13"

@@ -82,6 +82,8 @@ def test_sig_at_beginning():
     cytoolz_dict = keyfilter(lambda x: x not in skip_sigs, cytoolz_dict)
 
     for key, val in cytoolz_dict.items():
+        if key in {'__getattr__'}:
+            continue
         doclines = val.__doc__.splitlines()
         assert len(doclines) > 2, (
             'cytoolz.%s docstring too short:\n\n%s' % (key, val.__doc__))

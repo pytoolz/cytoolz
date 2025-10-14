@@ -7,3 +7,5 @@
 *.pyd
 build/
 dist/
+cytoolz.egg-info/
+wheelhouse/

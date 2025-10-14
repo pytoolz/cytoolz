@@ -21,24 +21,32 @@ jobs:
         include:
           - os: linux-intel
             runs-on: ubuntu-latest
+            archs: auto64 auto32
           - os: linux-arm
             runs-on: ubuntu-24.04-arm
+            archs: auto64 auto32
           - os: windows-intel
             runs-on: windows-latest
+            archs: auto64 auto32
           - os: windows-arm
             runs-on: windows-11-arm
+            archs: auto64 auto32
           - os: macos-intel
             # macos-15-intel is the last x86_64 runner
             runs-on: macos-15-intel
+            archs: auto
           - os: macos-arm
             # macos-14+ (including latest) are ARM64 runners
             runs-on: macos-latest
+            archs: auto universal2
           - os: ios
             runs-on: macos-latest
             platform: ios
+            archs: all
           - os: pyodide
             runs-on: ubuntu-latest
             platform: pyodide
+            archs: auto
 
     steps:
       - name: Setup QEMU
@@ -58,7 +66,7 @@ jobs:
         uses: pypa/cibuildwheel@v3.2.1
         env:
           CIBW_PLATFORM: ${{ matrix.platform || 'auto' }}
-          CIBW_ARCHS: ${{ matrix.archs || 'all' }}
+          CIBW_ARCHS: ${{ matrix.archs || 'auto' }}
       - name: List wheels
         run: |
           ls -al wheelhouse/

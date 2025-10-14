@@ -55,3 +55,4 @@ jobs:
           echo 'cimport cytoolz ; from cytoolz.functoolz cimport memoize' > try_cimport_cytoolz.pyx
           cythonize -i try_cimport_cytoolz.pyx
           python -c 'import try_cimport_cytoolz'
+          python -c 'import cytoolz ; print(f"{cytoolz.__version__=}")'

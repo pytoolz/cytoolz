@@ -89,7 +89,7 @@ if use_cython:
     directive_defaults['embedsignature'] = True
     directive_defaults['binding'] = True
     directive_defaults['language_level'] = '3'  # TODO: drop Python 2.7 and update this (and code) to 3
-    if Cython.__version__ > "3.1":
+    if Cython.__version__ > '3.1':
         # This is experimental! Use at your own risk (and please let us know of issues)
         directive_defaults['freethreading_compatible'] = True
     # The distributed *.c files may not be forward compatible.
@@ -109,18 +109,17 @@ setup(
     author_email='erik.n.welch@gmail.com',
     maintainer='Erik Welch',
     maintainer_email='erik.n.welch@gmail.com',
-    license = 'BSD',
+    license={'text': 'BSD-3-Clause', 'file': 'LICENSE.txt'},
     packages=['cytoolz', 'cytoolz.curried'],
     package_data={'cytoolz': ['*.pyx', '*.pxd', 'curried/*.pyx', 'tests/*.py']},
-    # include_package_data = True,
+    # include_package_data=True,
     keywords=('functional utility itertools functools iterator generator '
                 'curry memoize lazy streaming bigdata cython toolz cytoolz'),
-    classifiers = [
+    classifiers=[
         'Development Status :: 5 - Production/Stable',
         'Intended Audience :: Developers',
         'Intended Audience :: Education',
         'Intended Audience :: Science/Research',
-        'License :: OSI Approved :: BSD License',
         'Operating System :: OS Independent',
         'Programming Language :: Cython',
         'Programming Language :: Python',
@@ -143,8 +142,8 @@ setup(
     ],
     install_requires=['toolz >= 0.8.0'],
     extras_require={'cython': ['cython']},
-    python_requires=">=3.9",
-    setup_requires=["setuptools-git-versioning>=2.0"],
+    python_requires='>=3.9',
+    setup_requires=['setuptools-git-versioning>=2.0'],
     setuptools_git_versioning=version_cfg,
     zip_safe=False,
 )

@@ -11,7 +11,7 @@ test: inplace
 	python try_cimport_cytoolz_setup.py build_ext --inplace
 	python -c 'import try_cimport_cytoolz'
 	rm try_cimport_cytoolz*
-	python -c 'import cytoolz ; print("Version:", cytoolz.__version__)'
+	python -c 'import cytoolz ; print(f"{cytoolz.__version__=}")'
 
 clean:
 	rm -f cytoolz/*.c cytoolz/*.so cytoolz/*/*.c cytoolz/*/*.so

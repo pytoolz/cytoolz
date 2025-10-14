@@ -76,6 +76,8 @@ jobs:
         env:
           CIBW_PLATFORM: ${{ matrix.platform || 'auto' }}
           CIBW_ARCHS: ${{ matrix.archs || 'auto' }}
+          CIBW_BUILD: "cp* pp* gp*"
+          CIBW_ENABLE: "cpython-freethreading pypy graalpy"
       - name: List wheels
         run: |
           ls -al wheelhouse/

@@ -25,6 +25,9 @@ jobs:
           - os: linux-arm
             runs-on: ubuntu-24.04-arm
             archs: auto64 auto32
+          - os: linux-qemu
+            runs-on: ubuntu-latest
+            archs: ppc64le s390x riscv64
           - os: windows-intel
             runs-on: windows-latest
             archs: auto64 auto32
@@ -46,11 +49,11 @@ jobs:
           - os: pyodide
             runs-on: ubuntu-latest
             platform: pyodide
-            archs: auto
+            archs: all
 
     steps:
       - name: Setup QEMU
-        if: ${{ matrix.os == 'ubuntu' }}
+        if: ${{ matrix.os == 'linux-qemu' }}
         uses: docker/setup-qemu-action@v3
         with:
           platforms: all
@@ -70,9 +73,6 @@ jobs:
       - name: List wheels
         run: |
           ls -al wheelhouse/
-      - name: Why is dirty
-        run: |
-          git status
       - name: Upload wheels
         uses: actions/upload-artifact@v4
         with:

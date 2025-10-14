@@ -109,7 +109,7 @@ setup(
     author_email='erik.n.welch@gmail.com',
     maintainer='Erik Welch',
     maintainer_email='erik.n.welch@gmail.com',
-    license={'text': 'BSD-3-Clause', 'file': 'LICENSE.txt'},
+    license='BSD-3-Clause',
     packages=['cytoolz', 'cytoolz.curried'],
     package_data={'cytoolz': ['*.pyx', '*.pxd', 'curried/*.pyx', 'tests/*.py']},
     # include_package_data=True,

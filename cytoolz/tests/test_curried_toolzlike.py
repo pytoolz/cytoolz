@@ -1,7 +1,8 @@
 import cytoolz
 import cytoolz.curried
 import types
-from dev_skip_test import dev_skip_test
+
+from .dev_skip_test import dev_skip_test
 
 
 # Note that the tests in this file assume `toolz.curry` is a class, but we

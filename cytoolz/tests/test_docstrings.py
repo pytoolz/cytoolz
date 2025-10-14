@@ -3,7 +3,8 @@ import cytoolz
 
 from cytoolz import curry, identity, keyfilter, valfilter, merge_with
 from cytoolz.utils import raises
-from dev_skip_test import dev_skip_test
+
+from .dev_skip_test import dev_skip_test
 
 
 # `cytoolz` functions for which "# doctest: +SKIP" were added.

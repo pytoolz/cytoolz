@@ -3,7 +3,8 @@ import cytoolz
 
 from types import BuiltinFunctionType, FunctionType
 from cytoolz import curry, identity, keyfilter, valfilter, merge_with
-from dev_skip_test import dev_skip_test
+
+from .dev_skip_test import dev_skip_test
 
 
 @curry

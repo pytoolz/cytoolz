@@ -25,9 +25,15 @@ jobs:
           - os: linux-arm
             runs-on: ubuntu-24.04-arm
             archs: auto64 auto32
-          - os: linux-qemu
+          - os: linux-qemu-ppc64le
             runs-on: ubuntu-latest
-            archs: ppc64le s390x riscv64
+            archs: ppc64le
+          - os: linux-qemu-s390x
+            runs-on: ubuntu-latest
+            archs: s390x
+          - os: linux-qemu-riscv64
+            runs-on: ubuntu-latest
+            archs: riscv64
           - os: windows-intel
             runs-on: windows-latest
             archs: auto64 auto32
@@ -53,7 +59,7 @@ jobs:
 
     steps:
       - name: Setup QEMU
-        if: ${{ matrix.os == 'linux-qemu' }}
+        if: ${{ startsWith(matrix.os, 'linux-qemu') }}
         uses: docker/setup-qemu-action@v3
         with:
           platforms: all
@@ -98,9 +104,9 @@ jobs:
       - name: Install build dependencies
         run: |
           python -m pip install --upgrade pip
-          python -m pip install setuptools wheel cython
+          python -m pip install build
       - name: Build sdist
-        run: python setup.py sdist
+        run: python -m build --sdist
       - name: Upload sdist
         uses: actions/upload-artifact@v4
         with:

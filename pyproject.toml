@@ -1,5 +1,92 @@
 [build-system]
-requires = ["setuptools", "wheel", "cython"]
+build-backend = "setuptools.build_meta"
+requires = [
+  "setuptools >=64",
+  "cython >=0.29",
+  "setuptools-git-versioning >=2.0",
+]
+
+[project]
+name = "cytoolz"
+dynamic = ["version"]
+description = "Cython implementation of Toolz: High performance functional utilities"
+readme = "README.rst"
+requires-python = ">=3.9"
+license = "BSD-3-Clause"
+license-files = ["LICENSE.txt"]
+authors = [
+  { name = "Erik Welch", email = "erik.n.welch@gmail.com" },
+  { name = "CyToolz contributors" },
+]
+maintainers = [
+  { name = "Erik Welch", email = "erik.n.welch@gmail.com" },
+]
+keywords = [
+  "functional",
+  "utility",
+  "itertools",
+  "functools",
+  "iterator",
+  "generator",
+  "curry",
+  "memoize",
+  "lazy",
+  "streaming",
+  "bigdata",
+  "cython",
+  "toolz",
+  "cytoolz",
+]
+classifiers = [
+    "Development Status :: 5 - Production/Stable",
+    "Intended Audience :: Developers",
+    "Intended Audience :: Education",
+    "Intended Audience :: Science/Research",
+    "Operating System :: OS Independent",
+    "Programming Language :: Cython",
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
+    "Programming Language :: Python :: Implementation :: CPython",
+    "Programming Language :: Python :: Implementation :: PyPy",
+    "Programming Language :: Python :: Free Threading :: 1 - Unstable",
+    "Topic :: Scientific/Engineering",
+    "Topic :: Scientific/Engineering :: Information Analysis",
+    "Topic :: Software Development",
+    "Topic :: Software Development :: Libraries",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+    "Topic :: Utilities",
+]
+dependencies = [
+    "toolz >= 0.8.0",
+]
+
+[project.optional-dependencies]
+cython = ["cython >=0.29"]
+test = ["pytest"]
+
+[project.urls]
+homepage = "https://github.com/pytoolz/cytoolz"
+repository = "https://github.com/pytoolz/cytoolz"
+documentation = "https://toolz.readthedocs.io/en/latest/"
+changelog = "https://github.com/pytoolz/cytoolz/releases"
+
+[tool.setuptools]
+packages = [
+  "cytoolz",
+  "cytoolz.curried",
+  "cytoolz.tests",
+]
+
+[tool.setuptools-git-versioning]
+enabled = true
+dev_template = "{tag}+{ccount}.g{sha}"
+dirty_template = "{tag}+{ccount}.g{sha}.dirty"
 
 [tool.cibuildwheel]
 test-requires = ["pytest", "toolz"]

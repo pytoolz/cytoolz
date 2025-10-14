@@ -28,18 +28,27 @@ import os.path
 import sys
 from setuptools import setup, Extension
 
-import versioneer
-
-VERSION = versioneer.get_version()
-
 try:
+    import Cython
     from Cython.Build import cythonize
     has_cython = True
 except ImportError:
     has_cython = False
 
+version_cfg = {
+    'dev_template': '{tag}+{ccount}.g{sha}',
+    'dirty_template': '{tag}+{ccount}.g{sha}.dirty',
+    'enabled': True,
+}
+try:
+    from setuptools_git_versioning import get_version
+
+    version = get_version(version_cfg)
+    is_dev = '+' in str(version)
+except ModuleNotFoundError:
+    is_dev = True
+
 use_cython = True
-is_dev = '+' in VERSION
 strict_cython = is_dev or os.environ.get('CIBUILDWHEEL', '0') != '1'
 if '--no-cython' in sys.argv:
     use_cython = False
@@ -80,14 +89,15 @@ if use_cython:
     directive_defaults['embedsignature'] = True
     directive_defaults['binding'] = True
     directive_defaults['language_level'] = '3'  # TODO: drop Python 2.7 and update this (and code) to 3
+    if Cython.__version__ > "3.1":
+        # This is experimental! Use at your own risk (and please let us know of issues)
+        directive_defaults['freethreading_compatible'] = True
     # The distributed *.c files may not be forward compatible.
     # If we are cythonizing a non-dev version, then force everything to cythonize.
     ext_modules = cythonize(ext_modules, force=not is_dev)
 
 setup(
     name='cytoolz',
-    version=VERSION,
-    cmdclass=versioneer.get_cmdclass(),
     description=('Cython implementation of Toolz: '
                     'High performance functional utilities'),
     ext_modules=ext_modules,
@@ -115,14 +125,15 @@ setup(
         'Programming Language :: Cython',
         'Programming Language :: Python',
         'Programming Language :: Python :: 3',
-        'Programming Language :: Python :: 3.8',
         'Programming Language :: Python :: 3.9',
         'Programming Language :: Python :: 3.10',
         'Programming Language :: Python :: 3.11',
         'Programming Language :: Python :: 3.12',
         'Programming Language :: Python :: 3.13',
+        'Programming Language :: Python :: 3.14',
         'Programming Language :: Python :: Implementation :: CPython',
         'Programming Language :: Python :: Implementation :: PyPy',
+        'Programming Language :: Python :: Free Threading :: 1 - Unstable',
         'Topic :: Scientific/Engineering',
         'Topic :: Scientific/Engineering :: Information Analysis',
         'Topic :: Software Development',
@@ -132,6 +143,8 @@ setup(
     ],
     install_requires=['toolz >= 0.8.0'],
     extras_require={'cython': ['cython']},
-    python_requires=">=3.8",
+    python_requires=">=3.9",
+    setup_requires=["setuptools-git-versioning>=2.0"],
+    setuptools_git_versioning=version_cfg,
     zip_safe=False,
 )

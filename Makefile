@@ -7,9 +7,10 @@ inplace:
 test: inplace
 	pytest -s --doctest-modules cytoolz/
 	echo 'cimport cytoolz ; from cytoolz.functoolz cimport memoize' > try_cimport_cytoolz.pyx
-	cythonize -i try_cimport_cytoolz.pyx
+	echo 'import setuptools, Cython.Build ; setuptools.setup(ext_modules=Cython.Build.cythonize("try_cimport_cytoolz.pyx"))' > try_cimport_cytoolz_setup.py
+	python try_cimport_cytoolz_setup.py build_ext --inplace
 	python -c 'import try_cimport_cytoolz'
-	rm try_cimport_cytoolz.*
+	rm try_cimport_cytoolz*
 
 clean:
 	rm -f cytoolz/*.c cytoolz/*.so cytoolz/*/*.c cytoolz/*/*.so

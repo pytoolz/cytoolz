@@ -48,7 +48,7 @@ Install
 Dependencies
 ------------
 
-``cytoolz`` supports Python 3.8+ with a common codebase.
+``cytoolz`` supports Python 3.9+ with a common codebase.
 It is developed in Cython, but requires no dependecies other than CPython
 and a C compiler.  Like ``toolz``, it is a light weight dependency.
 

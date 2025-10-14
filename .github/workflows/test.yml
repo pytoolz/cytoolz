@@ -30,6 +30,8 @@ jobs:
             python-version: "3.13"
           - cython-version: "0.29.37"
             python-version: "3.14"
+          - cython-version: "0.29.37"
+            python-version: "pypy3.11"
     steps:
       - name: Checkout
         uses: actions/checkout@v5

@@ -692,6 +692,9 @@ cpdef object get(object ind, object seq, object default='__no__default__'):
     return val
 
 
+cdef object _chain_from_iterable = chain.from_iterable
+
+
 cpdef object concat(object seqs):
     """
     Concatenate zero or more iterables, any of which may be infinite.
@@ -708,7 +711,7 @@ cpdef object concat(object seqs):
     See also:
         itertools.chain.from_iterable  equivalent
     """
-    return chain.from_iterable(seqs)
+    return _chain_from_iterable(seqs)
 
 
 def concatv(*seqs):
@@ -721,7 +724,7 @@ def concatv(*seqs):
     See also:
         itertools.chain
     """
-    return chain.from_iterable(seqs)
+    return _chain_from_iterable(seqs)
 
 
 cpdef object mapcat(object func, object seqs):

@@ -24,7 +24,6 @@ By forcing cythonization of all files (except in dev) if Cython is available,
 we avoid the case where the generated `*.c` files are not forward-compatible.
 
 """
-import os.path
 import sys
 from setuptools import setup, Extension
 
@@ -35,15 +34,15 @@ try:
 except ImportError:
     has_cython = False
 
-version_cfg = {
-    'dev_template': '{tag}+{ccount}.g{sha}',
-    'dirty_template': '{tag}+{ccount}.g{sha}.dirty',
-    'enabled': True,
-}
 try:
     from setuptools_git_versioning import get_version
 
-    version = get_version(version_cfg)
+    version = get_version(
+        {
+            'dev_template': '{tag}+{ccount}.g{sha}',
+            'dirty_template': '{tag}+{ccount}.g{sha}.dirty',
+        }
+    )
     is_dev = '+' in str(version)
 except ModuleNotFoundError:
     is_dev = True
@@ -88,8 +87,8 @@ if use_cython:
         from Cython.Compiler.Options import directive_defaults
     directive_defaults['embedsignature'] = True
     directive_defaults['binding'] = True
-    directive_defaults['language_level'] = '3'  # TODO: drop Python 2.7 and update this (and code) to 3
-    if Cython.__version__ > '3.1':
+    directive_defaults['language_level'] = '3'
+    if Cython.__version__ >= '3.1':
         # This is experimental! Use at your own risk (and please let us know of issues)
         directive_defaults['freethreading_compatible'] = True
     # The distributed *.c files may not be forward compatible.

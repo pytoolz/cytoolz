@@ -67,6 +67,7 @@ jobs:
         uses: actions/checkout@v5
         with:
           fetch-depth: 0
+          persist-credentials: false
       - name: Set up Python
         uses: actions/setup-python@v6
         with:
@@ -78,6 +79,7 @@ jobs:
           CIBW_ARCHS: ${{ matrix.archs || 'auto' }}
           CIBW_BUILD: "cp* pp*"
           CIBW_ENABLE: "cpython-freethreading pypy"
+          CIBW_TEST_SKIP: "*-ios_*"
       - name: List wheels
         run: |
           ls -al wheelhouse/
@@ -99,6 +101,7 @@ jobs:
         uses: actions/checkout@v5
         with:
           fetch-depth: 0
+          persist-credentials: false
       - name: Set up Python
         uses: actions/setup-python@v6
         with:
@@ -131,7 +134,7 @@ jobs:
           ls -al dist/
       - name: Publish to PyPI
         uses: pypa/gh-action-pypi-publish@v1.13.0
-        if: startsWith(github.ref, 'refs/tags/')
+        if: startsWith(github.ref, 'refs/tags/') && github.repository == 'pytoolz/cytoolz'
         with:
           user: __token__
           password: ${{ secrets.PYPI_TOKEN }}

@@ -14,7 +14,7 @@ import collections
 import heapq
 import itertools
 import operator
-from cytools import utils
+from cytoolz import utils
 
 # cdef aliases to eliminate global lookups
 cdef object deque = collections.deque

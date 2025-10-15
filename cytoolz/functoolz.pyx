@@ -1,3 +1,11 @@
+from functools import partial
+from cytoolz.utils import no_default
+import cytoolz._signatures as _sigs
+
+from toolz.functoolz import (InstanceProperty, instanceproperty, is_arity,
+                             num_required_args, has_varargs, has_keywords,
+                             is_valid_args, is_partial_args)
+
 cimport cython
 from cpython.dict cimport PyDict_Merge, PyDict_New
 from cpython.object cimport (PyCallable_Check, PyObject_Call, PyObject_CallObject,
@@ -7,20 +15,12 @@ from cpython.sequence cimport PySequence_Concat
 from cpython.set cimport PyFrozenSet_New
 from cpython.tuple cimport PyTuple_Check, PyTuple_GET_SIZE
 
-import functools
 import importlib
 import inspect
 import operator
 import types
-from toolz import functoolz as functoolz_py
-
-from cytools import _signatures
-from cytoolz import utils
 
 # cdef constants to eliminate global lookups
-cdef object partial = functools.partial
-del functools
-
 cdef object import_module = importlib.import_module
 del importlib
 
@@ -33,21 +33,13 @@ del operator
 cdef object MethodType = types.MethodType
 del types
 
-cdef object InstanceProperty = functoolz_py.InstanceProperty
-cdef object instanceproperty = functoolz_py.instanceproperty
-cdef object is_arity = functoolz_py.is_arity
-cdef object num_required_args = functoolz_py.num_required_args
-cdef object has_varargs = functoolz_py.has_varargs
-cdef object has_keywords = functoolz_py.has_keywords
-cdef object is_valid_args = functoolz_py.is_valid_args
-cdef object is_partial_args = functoolz_py.is_partial_args
-del functoolz_py
-
-cdef object no_default = utils.no_default
-del utils
-
-cdef object signature_or_spec = _signatures.signature_or_spec
-del _signatures
+cdef object _is_arity = is_arity
+cdef object _has_varargs = has_varargs
+cdef object _has_keywords = has_keywords
+cdef object _is_valid_args = is_valid_args
+cdef object _is_partial_args = is_partial_args
+cdef object _no_default = no_default
+cdef object _signature_or_spec = _sigs.signature_or_spec
 
 
 __all__ = ['identity', 'thread_first', 'thread_last', 'memoize', 'compose', 'compose_left',
@@ -179,11 +171,11 @@ cdef struct partialobject:
     PyObject *weakreflist
 
 
-cdef object _partial = partial(lambda: None)
+cdef object _empty_partial = partial(lambda: None)
 
 
 cdef object _empty_kwargs():
-    if <object> (<partialobject*> _partial).kw is None:
+    if <object> (<partialobject*> _empty_partial).kw is None:
         return None
     return PyDict_New()
 
@@ -318,12 +310,12 @@ cdef class curry:
         #    kwargs = dict(self.keywords, **kwargs)
 
         if self._sigspec is None:
-            sigspec = self._sigspec = signature_or_spec(func)
-            self._has_unknown_args = has_varargs(func, sigspec) is not False
+            sigspec = self._sigspec = _signature_or_spec(func)
+            self._has_unknown_args = _has_varargs(func, sigspec) is not False
         else:
             sigspec = self._sigspec
 
-        if is_partial_args(func, args, kwargs, sigspec) is False:
+        if _is_partial_args(func, args, kwargs, sigspec) is False:
             # Nothing can make the call valid
             return False
         elif self._has_unknown_args:
@@ -331,7 +323,7 @@ cdef class curry:
             # anyway because the function may have `*args`.  This is useful
             # for decorators with signature `func(*args, **kwargs)`.
             return True
-        elif not is_valid_args(func, args, kwargs, sigspec):
+        elif not _is_valid_args(func, args, kwargs, sigspec):
             # Adding more arguments may make the call valid
             return True
         else:
@@ -362,7 +354,7 @@ cdef class curry:
             sig = signature(self.func)
             args = self.args or ()
             keywords = self.keywords or {}
-            if is_partial_args(self.func, args, keywords, sig) is False:
+            if _is_partial_args(self.func, args, keywords, sig) is False:
                 raise TypeError('curry object has incorrect arguments')
 
             params = list(sig.parameters.values())
@@ -390,7 +382,7 @@ cdef class curry:
                     if kwonly:
                         kind = param.KEYWORD_ONLY
                     if default is param.empty:
-                        default = no_default
+                        default = _no_default
                 newparams.append(param.replace(default=default, kind=kind))
 
             return sig.replace(parameters=newparams)
@@ -498,9 +490,9 @@ cdef class _memoize:
         self.key = key
 
         try:
-            self.may_have_kwargs = has_keywords(func) is not False
+            self.may_have_kwargs = _has_keywords(func) is not False
             # Is unary function (single arg, no variadic argument or keywords)?
-            self.is_unary = is_arity(1, func)
+            self.is_unary = _is_arity(1, func)
         except TypeError:
             self.is_unary = False
             self.may_have_kwargs = True

@@ -10,11 +10,31 @@ from cpython.tuple cimport PyTuple_GET_ITEM, PyTuple_GetSlice, PyTuple_New, PyTu
 # Locally defined bindings that differ from `cython.cpython` bindings
 from cytoolz.cpython cimport PtrIter_Next, PtrObject_GetItem
 
-from collections import deque
-from heapq import heapify, heappop, heapreplace
-from itertools import chain, islice, zip_longest
-from operator import itemgetter
-from cytoolz.utils import no_default
+import collections
+import heapq
+import itertools
+import operator
+from cytools import utils
+
+# cdef aliases to eliminate global lookups
+cdef object deque = collections.deque
+del collections
+
+cdef object heapify = heapq.heapify
+cdef object heappop = heapq.heappop
+cdef object heapreplace = heapq.heapreplace
+del heapq
+
+cdef object chain = itertools.chain
+cdef object islice = itertools.islice
+cdef object zip_longest = itertools.zip_longest
+del itertools
+
+cdef object itemgetter = operator.itemgetter
+del operator
+
+cdef object no_default = utils.no_default
+del utils
 
 
 __all__ = ['remove', 'accumulate', 'groupby', 'merge_sorted', 'interleave',
@@ -692,6 +712,9 @@ cpdef object get(object ind, object seq, object default='__no__default__'):
     return val
 
 
+cdef object _chain_from_iterable = chain.from_iterable
+
+
 cpdef object concat(object seqs):
     """
     Concatenate zero or more iterables, any of which may be infinite.
@@ -708,7 +731,7 @@ cpdef object concat(object seqs):
     See also:
         itertools.chain.from_iterable  equivalent
     """
-    return chain.from_iterable(seqs)
+    return _chain_from_iterable(seqs)
 
 
 def concatv(*seqs):
@@ -721,7 +744,7 @@ def concatv(*seqs):
     See also:
         itertools.chain
     """
-    return chain.from_iterable(seqs)
+    return _chain_from_iterable(seqs)
 
 
 cpdef object mapcat(object func, object seqs):

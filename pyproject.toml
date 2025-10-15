@@ -1,7 +1,7 @@
 [build-system]
 build-backend = "setuptools.build_meta"
 requires = [
-  "setuptools >=64",
+  "setuptools >=77",
   "cython >=0.29",
   "setuptools-git-versioning >=2.0",
 ]

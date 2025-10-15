@@ -1,4 +1,5 @@
 recursive-include cytoolz *
+include AUTHORS.md
 include LICENSE.txt
 include setup.py
 include README.rst

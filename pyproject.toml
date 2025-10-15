@@ -90,4 +90,4 @@ dirty_template = "{tag}+{ccount}.g{sha}.dirty"
 
 [tool.cibuildwheel]
 test-requires = ["pytest", "toolz"]
-test-command = "pytest --pyargs cytoolz"
+test-command = "python -m pytest --pyargs cytoolz"

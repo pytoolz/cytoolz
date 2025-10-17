@@ -1060,6 +1060,7 @@ cdef class partition_all:
     def __cinit__(self, Py_ssize_t n, object seq):
         self.n = n
         self.iterseq = iter(seq)
+        self.seq = seq
 
     def __iter__(self):
         return self
@@ -1067,7 +1068,7 @@ cdef class partition_all:
     def __next__(self):
         cdef tuple result
         cdef object item
-        cdef Py_ssize_t i = 0
+        cdef Py_ssize_t i = 0, end
         result = PyTuple_New(self.n)
         for item in self.iterseq:
             Py_INCREF(item)
@@ -1081,6 +1082,19 @@ cdef class partition_all:
         for j in range(i, self.n):
             Py_INCREF(None)
             PyTuple_SET_ITEM(result, j, None)
+
+        try:
+            # toolz uses `len` to try to determine the size of the final result
+            # and raises LookupError if `len` lies, so we need to do the same.
+            end = len(self.seq)
+            end = end % self.n
+            if end != i:
+                raise LookupError(
+                    'The sequence passed to `parition_all` has invalid length'
+                )
+        except TypeError:
+            pass
+
         return PyTuple_GetSlice(result, 0, i)
 
 

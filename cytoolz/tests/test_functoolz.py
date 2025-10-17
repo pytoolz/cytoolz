@@ -31,7 +31,7 @@ def double(x):
     return 2 * x
 
 
-class AlwaysEquals(object):
+class AlwaysEquals:
     """useful to test correct __eq__ implementation of other objects"""
 
     def __eq__(self, other):
@@ -41,7 +41,7 @@ class AlwaysEquals(object):
         return False
 
 
-class NeverEquals(object):
+class NeverEquals:
     """useful to test correct __eq__ implementation of other objects"""
 
     def __eq__(self, other):
@@ -382,7 +382,7 @@ def test_curry_doesnot_transmogrify():
 
 
 def test_curry_on_classmethods():
-    class A(object):
+    class A:
         BASE = 10
 
         def __init__(self, base):
@@ -424,7 +424,7 @@ def test_curry_on_classmethods():
 
 
 def test_memoize_on_classmethods():
-    class A(object):
+    class A:
         BASE = 10
         HASH = 10
 
@@ -601,7 +601,7 @@ def test_compose_metadata():
     if not IS_PYPY_GE_39:  # pypy >=3.9 doesn't like __doc__ property
         assert composed.__doc__ == 'A composition of functions'
 
-    assert repr(composed) == 'Compose({!r}, {!r})'.format(f, h)
+    assert repr(composed) == f'Compose({f!r}, {h!r})'
 
     assert composed == compose(f, h)
     assert composed == AlwaysEquals()
@@ -646,7 +646,7 @@ def test_compose_metadata():
         return 4
 
     def otherfunc(f):
-        return 'result: {}'.format(f)
+        return f'result: {f}'
 
     # set annotations compatibly with python2 syntax
     myfunc.__annotations__ = {
@@ -750,7 +750,7 @@ def test_excepts():
     assert excepts.__name__ == 'excepts'
     # in Python < 3.13 the second line is indented, in 3.13+
     # it is not, strip all lines to fudge it
-    testlines = "\n".join((line.strip() for line in excepts.__doc__.splitlines()))
+    testlines = "\n".join(line.strip() for line in excepts.__doc__.splitlines())
     assert (
         'A wrapper around a function to catch exceptions and\n'
         'dispatch to a handler.\n'

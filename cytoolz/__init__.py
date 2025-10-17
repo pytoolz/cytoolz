@@ -24,7 +24,7 @@ from . import curried  # sandbox
 functoolz._sigs.update_signature_registry()
 
 # What version of toolz does cytoolz implement?
-__toolz_version__ = '1.0.0'
+__toolz_version__ = '1.1.0'
 
 
 def __getattr__(name):

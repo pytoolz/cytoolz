@@ -131,6 +131,7 @@ cpdef object partition(Py_ssize_t n, object seq, object pad=*)
 cdef class partition_all:
     cdef Py_ssize_t n
     cdef object iterseq
+    cdef object seq
 
 
 cpdef object count(object seq)

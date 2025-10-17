@@ -24,6 +24,7 @@ By forcing cythonization of all files (except in dev) if Cython is available,
 we avoid the case where the generated `*.c` files are not forward-compatible.
 
 """
+import os
 import sys
 from setuptools import setup, Extension
 

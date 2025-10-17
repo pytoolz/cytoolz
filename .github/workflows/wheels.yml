@@ -1,12 +1,24 @@
-name: Build wheels
+name: Builid Wheels and Release
 
 on:
   pull_request:  # Uncomment to debug wheel building in a PR
+  workflow_dispatch:
+    inputs:
+      upload_dest:
+        type: choice
+        description: Upload wheels to
+        options:
+          - No Upload
+          - PyPI
+          - Test PyPI
   push:
     branches:
       - master
     tags:
       - '[0-9]+.[0-9]+.[0-9]+*'
+
+permissions:
+  contents: read
 
 jobs:
   wheels:
@@ -60,20 +72,20 @@ jobs:
     steps:
       - name: Setup QEMU
         if: ${{ startsWith(matrix.os, 'linux-qemu') }}
-        uses: docker/setup-qemu-action@v3
+        uses: docker/setup-qemu-action@29109295f81e9208d7d86ff1c6c12d2833863392  # v3
         with:
           platforms: all
       - name: Checkout
-        uses: actions/checkout@v5
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8  # v5.0.0
         with:
           fetch-depth: 0
           persist-credentials: false
       - name: Set up Python
-        uses: actions/setup-python@v6
+        uses: actions/setup-python@e797f83bcb11b83ae66e0230d6156d7c80228e7c  # v6.0.0
         with:
           python-version: "3.x"
       - name: Build wheels
-        uses: pypa/cibuildwheel@v3.2.1
+        uses: pypa/cibuildwheel@9c00cb4f6b517705a3794b22395aedc36257242c  # v3.2.1
         env:
           CIBW_PLATFORM: ${{ matrix.platform || 'auto' }}
           CIBW_ARCHS: ${{ matrix.archs || 'auto' }}
@@ -84,7 +96,7 @@ jobs:
         run: |
           ls -al wheelhouse/
       - name: Upload wheels
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02  # v4.6.2
         with:
           name: cibw-wheels-${{ matrix.os }}-${{ strategy.job-index }}
           path: ./wheelhouse/*.whl
@@ -98,12 +110,12 @@ jobs:
         shell: bash -l {0}
     steps:
       - name: Checkout
-        uses: actions/checkout@v5
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8  # v5.0.0
         with:
           fetch-depth: 0
           persist-credentials: false
       - name: Set up Python
-        uses: actions/setup-python@v6
+        uses: actions/setup-python@e797f83bcb11b83ae66e0230d6156d7c80228e7c  # v6.0.0
         with:
           python-version: "3.9"
       - name: Install build dependencies
@@ -113,18 +125,51 @@ jobs:
       - name: Build sdist
         run: python -m build --sdist
       - name: Upload sdist
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02  # v4.6.2
         with:
           name: cibw-sdist
           path: dist/*.tar.gz
           retention-days: 7
 
-  upload_all:
+  upload-to-test-pypi:
     needs: [wheels, sdist]
     runs-on: ubuntu-latest
+    if: github.repository == 'pytoolz/cytoolz' && (startsWith(github.ref, 'refs/tags/') || github.event_name == 'workflow_dispatch' && github.event.inputs.upload_dest == 'Test PyPI')
+
+    environment:
+      name: test-pypi
+      url: https://test.pypi.org/p/cytoolz
+    permissions:
+      id-token: write
+
+    steps:
+      - uses: actions/download-artifact@634f93cb2916e3fdff6788551b99b062d0335ce0  # v5.0.0
+        with:
+          pattern: cibw-*
+          path: dist
+          merge-multiple: true
+      - name: Publish to Test-PyPI
+        uses: pypa/gh-action-pypi-publish@ed0c53931b1dc9bd32cbe73a98c7f6766f8a527e  # v1.13.0
+        with:
+          repository-url: https://test.pypi.org/legacy/
+          print-hash: true
+          verbose: true
+
+  upload-to-pypi:
+    needs: [wheels, sdist]
+    runs-on: ubuntu-latest
+    if: github.repository == 'pytoolz/cytoolz' && startsWith(github.ref, 'refs/tags/') && (github.event_name != 'workflow_dispatch' || github.event.inputs.upload_dest == 'PyPI')
+
+    environment:
+      name: pypi
+      url: https://pypi.org/p/cytoolz
+    permissions:
+      id-token: write
+      attestations: write
+
     steps:
       - name: Download dist artifacts
-        uses: actions/download-artifact@v5
+        uses: actions/download-artifact@634f93cb2916e3fdff6788551b99b062d0335ce0  # v5.0.0
         with:
           pattern: cibw-*
           path: dist
@@ -132,9 +177,13 @@ jobs:
       - name: List artifacts
         run: |
           ls -al dist/
-      - name: Publish to PyPI
-        uses: pypa/gh-action-pypi-publish@v1.13.0
-        if: startsWith(github.ref, 'refs/tags/') && github.repository == 'pytoolz/cytoolz'
+      - name: Generate artifact attestation for sdist and wheels
+        uses: actions/attest-build-provenance@977bb373ede98d70efdf65b84cb5f73e068dcc2a  # v3.0.0
         with:
-          user: __token__
-          password: ${{ secrets.PYPI_TOKEN }}
+          subject-path: "dist/cytoolz-*"
+      - name: Publish to PyPI
+        uses: pypa/gh-action-pypi-publish@ed0c53931b1dc9bd32cbe73a98c7f6766f8a527e  # v1.13.0
+        with:
+          attestations: true
+          print-hash: true
+          verbose: true

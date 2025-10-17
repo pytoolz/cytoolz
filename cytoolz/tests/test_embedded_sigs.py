@@ -89,7 +89,7 @@ def test_sig_at_beginning():
             continue
         doclines = val.__doc__.splitlines()
         assert len(doclines) > 2, (
-            'cytoolz.%s docstring too short:\n\n%s' % (key, val.__doc__))
+            f'cytoolz.{key} docstring too short:\n\n{val.__doc__}')
 
         sig = '%s(' % aliases.get(key, key)
         assert sig in doclines[0], (

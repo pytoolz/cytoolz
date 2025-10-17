@@ -5,6 +5,7 @@
 *.swo
 *.so
 *.pyd
+.DS_STORE
 build/
 dist/
 cytoolz.egg-info/

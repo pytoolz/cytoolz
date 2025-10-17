@@ -91,3 +91,18 @@ dirty_template = "{tag}+{ccount}.g{sha}.dirty"
 [tool.cibuildwheel]
 test-requires = ["pytest", "toolz"]
 test-command = "python -m pytest --pyargs cytoolz"
+
+[tool.pytest.ini_options]
+minversion = "6.0"
+testpaths = ["cytoolz"]
+xfail_strict = true
+addopts = [
+  "--strict-config",  # Force error if config is mispelled
+  "--strict-markers", # Force error if marker is mispelled (must be defined in config)
+  "-ra",              # Print summary of all fails/errors
+]
+log_cli_level = "info"
+filterwarnings = [
+  "error",
+  "ignore:The toolz.compatibility module is no longer needed:DeprecationWarning:",
+]

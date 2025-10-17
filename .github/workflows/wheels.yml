@@ -65,6 +65,7 @@ jobs:
             platform: ios
             archs: all
           - os: pyodide
+            # pyodide is not yet supported by PyPI, but let's make sure we can build for it
             runs-on: ubuntu-latest
             platform: pyodide
             archs: all
@@ -96,6 +97,7 @@ jobs:
         run: |
           ls -al wheelhouse/
       - name: Upload wheels
+        if: matrix.platform != 'pyodide'  # pyodide is not yet supported by PyPI
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02  # v4.6.2
         with:
           name: cibw-wheels-${{ matrix.os }}-${{ strategy.job-index }}

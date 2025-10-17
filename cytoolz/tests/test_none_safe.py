@@ -24,7 +24,7 @@ from cytoolz.utils import raises
 from operator import add
 
 
-class GenException(object):
+class GenException:
     def __init__(self, exc):
         self.exc = exc
 

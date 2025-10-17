@@ -3,7 +3,8 @@ import cytoolz
 
 from cytoolz import curry, identity, keyfilter, valfilter, merge_with
 from cytoolz.utils import raises
-from dev_skip_test import dev_skip_test
+
+from .dev_skip_test import dev_skip_test
 
 
 # `cytoolz` functions for which "# doctest: +SKIP" were added.
@@ -51,8 +52,8 @@ def test_docstrings_uptodate():
         # only check if the new doctstring *contains* the expected docstring
         # in Python < 3.13 the second line is indented, in 3.13+
         # it is not, strip all lines to fudge it
-        toolz_doc = "\n".join((line.strip() for line in convertdoc(toolz_func).splitlines()))
-        cytoolz_doc = "\n".join((line.strip() for line in cytoolz_func.__doc__.splitlines()))
+        toolz_doc = "\n".join(line.strip() for line in convertdoc(toolz_func).splitlines())
+        cytoolz_doc = "\n".join(line.strip() for line in cytoolz_func.__doc__.splitlines())
         if toolz_doc not in cytoolz_doc:
             diff = list(differ.compare(toolz_doc.splitlines(),
                                        cytoolz_doc.splitlines()))
@@ -70,7 +71,7 @@ def test_docstrings_uptodate():
                              key in skipped_doctests))
 
             if any(map(checkbad, diff)):
-                assert False, 'Error: cytoolz.%s has a bad docstring:\n%s\n' % (
+                assert False, 'Error: cytoolz.{} has a bad docstring:\n{}\n'.format(
                     key, '\n'.join(fulldiff))
 
 

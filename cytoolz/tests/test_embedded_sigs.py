@@ -3,7 +3,8 @@ import cytoolz
 
 from types import BuiltinFunctionType, FunctionType
 from cytoolz import curry, identity, keyfilter, valfilter, merge_with
-from dev_skip_test import dev_skip_test
+
+from .dev_skip_test import dev_skip_test
 
 
 @curry
@@ -40,6 +41,8 @@ def test_class_sigs():
 
     d = merge_with(identity, toolz_dict, cytoolz_dict)
     for key, (toolz_func, cytoolz_func) in d.items():
+        if key in {'__getattr__'}:
+            continue
         if isinstance(toolz_func, FunctionType):
             # function
             toolz_spec = inspect.signature(toolz_func)
@@ -82,9 +85,11 @@ def test_sig_at_beginning():
     cytoolz_dict = keyfilter(lambda x: x not in skip_sigs, cytoolz_dict)
 
     for key, val in cytoolz_dict.items():
+        if key in {'__getattr__'}:
+            continue
         doclines = val.__doc__.splitlines()
         assert len(doclines) > 2, (
-            'cytoolz.%s docstring too short:\n\n%s' % (key, val.__doc__))
+            f'cytoolz.{key} docstring too short:\n\n{val.__doc__}')
 
         sig = '%s(' % aliases.get(key, key)
         assert sig in doclines[0], (

@@ -1,0 +1,77 @@
+ci:
+  autofix_prs: false
+  skip: [no-commit-to-branch]
+fail_fast: false
+default_language_version:
+  python: python3
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v6.0.0
+    hooks:
+      # Sanity checks
+      - id: check-added-large-files
+      - id: check-case-conflict
+      - id: check-illegal-windows-names
+      - id: check-merge-conflict
+      # Checks based on file type
+      - id: check-ast
+      - id: check-toml
+      - id: check-yaml
+      # Detect mistakes
+      - id: check-vcs-permalinks
+      - id: debug-statements
+      - id: destroyed-symlinks
+      - id: detect-private-key
+      - id: forbid-submodules
+      # Automatic fixes
+      - id: end-of-file-fixer
+      - id: mixed-line-ending
+        args: [--fix=lf]
+      - id: trailing-whitespace
+  - repo: https://github.com/abravalheri/validate-pyproject
+    rev: v0.24.1
+    hooks:
+      - id: validate-pyproject
+        name: Validate pyproject.toml
+  - repo: https://github.com/asottile/pyupgrade
+    rev: v3.21.0
+    hooks:
+      - id: pyupgrade
+        args: [--py39-plus]
+  - repo: https://github.com/rhysd/actionlint
+    rev: v1.7.8
+    hooks:
+      - id: actionlint
+  - repo: https://github.com/adrienverge/yamllint
+    rev: v1.37.1
+    hooks:
+      - id: yamllint
+        args: [-d, "{extends: default, rules: {line-length: disable}}"]
+  - repo: https://github.com/woodruffw/zizmor-pre-commit
+    rev: v1.15.2
+    hooks:
+      - id: zizmor
+  - repo: https://github.com/pre-commit/pygrep-hooks
+    rev: v1.10.0
+    hooks:
+      - id: rst-directive-colons
+      - id: rst-inline-touching-normal
+      - id: python-check-blanket-noqa
+      - id: python-check-blanket-type-ignore
+      - id: python-no-eval
+      - id: python-no-log-warn
+      - id: text-unicode-replacement-char
+  - repo: https://github.com/python-jsonschema/check-jsonschema
+    rev: 0.34.1
+    hooks:
+      - id: check-dependabot
+      - id: check-github-workflows
+  - repo: meta
+    hooks:
+      - id: check-hooks-apply
+      - id: check-useless-excludes
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v6.0.0
+    hooks:
+      - id: no-commit-to-branch
+        args: [--branch, master]

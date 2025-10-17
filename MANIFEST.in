@@ -1,11 +1,11 @@
 recursive-include cytoolz *
+include AUTHORS.md
 include LICENSE.txt
 include setup.py
 include README.rst
 include Makefile
 include MANIFEST.in
 include pyproject.toml
-include versioneer.py
-include cytoolz/tests/*.py
-include cytoolz/_version.py
+include cytoolz/*.pyx
+include cytoolz/*.pxd
 global-exclude *.pyc *~ *.bak *.swp *.swo *.pyo *.so

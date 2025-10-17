@@ -24,9 +24,14 @@ from . import curried  # sandbox
 functoolz._sigs.update_signature_registry()
 
 # What version of toolz does cytoolz implement?
-__toolz_version__ = '1.0.0'
+__toolz_version__ = '1.1.0'
 
-from ._version import get_versions
 
-__version__ = get_versions()['version']
-del get_versions
+def __getattr__(name):
+    if name == "__version__":
+        from importlib.metadata import version
+
+        rv = version("cytoolz")
+        globals()[name] = rv
+        return rv
+    raise AttributeError(f"module {__name__!r} has no attribute {name!r}")

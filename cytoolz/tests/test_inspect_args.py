@@ -19,7 +19,7 @@ def make_func(param_string, raise_if_called=True):
     else:
         body = 'return True'
     d = {}
-    exec('def func%s:\n    %s' % (param_string, body), globals(), d)
+    exec(f'def func{param_string}:\n    {body}', globals(), d)
     return d['func']
 
 
@@ -189,7 +189,7 @@ def test_is_valid_py3(check_valid=is_valid_args, incomplete=False):
     f.__signature__ = 34
     assert check_valid(f) is False
 
-    class RaisesValueError(object):
+    class RaisesValueError:
         def __call__(self):
             pass
         @property
@@ -257,7 +257,7 @@ def test_has_unknown_args():
     f.__signature__ = 34
     assert has_varargs(f) is False
 
-    class RaisesValueError(object):
+    class RaisesValueError:
         def __call__(self):
             pass
         @property
@@ -286,7 +286,8 @@ def test_has_keywords():
     assert has_keywords(int)
     assert has_keywords(sorted)
     assert has_keywords(max)
-    assert has_keywords(map) is False
+    # map gained `strict=False` keyword in Python 3.14
+    assert has_keywords(map) == (sys.version_info[1] >= 14)
     assert has_keywords(bytearray) is None
 
 
@@ -439,7 +440,7 @@ def test_inspect_signature_property():
     # By adding AddX to our signature registry, we can inspect the class
     # itself and objects of the class.  `inspect.signature` doesn't like
     # it when `obj.__signature__` is a property.
-    class AddX(object):
+    class AddX:
         def __init__(self, func):
             self.func = func
 
@@ -468,7 +469,7 @@ def test_inspect_signature_property():
 
 
 def test_inspect_wrapped_property():
-    class Wrapped(object):
+    class Wrapped:
         def __init__(self, func):
             self.func = func
 
@@ -489,17 +490,15 @@ def test_inspect_wrapped_property():
     inspectbroken = True
     if sys.version_info.major > 3:
         inspectbroken = False
-    if sys.version_info.major == 3:
-        if sys.version_info.minor == 11 and sys.version_info.micro > 8:
-            inspectbroken = False
-        if sys.version_info.minor == 12 and sys.version_info.micro > 2:
-            inspectbroken = False
-        if sys.version_info.minor > 12:
-            inspectbroken = False
+    if sys.version_info.minor == 11 and sys.version_info.micro > 8:
+        inspectbroken = False
+    if sys.version_info.minor == 12 and sys.version_info.micro > 2:
+        inspectbroken = False
+    if sys.version_info.minor > 12:
+        inspectbroken = False
 
     if inspectbroken:
         assert num_required_args(Wrapped) is None
         _sigs.signatures[Wrapped] = (_sigs.expand_sig((0, lambda func: None)),)
-        assert num_required_args(Wrapped) == 1
-    else:
-        assert num_required_args(Wrapped) is 1
+
+    assert num_required_args(Wrapped) == 1

@@ -24,22 +24,30 @@ By forcing cythonization of all files (except in dev) if Cython is available,
 we avoid the case where the generated `*.c` files are not forward-compatible.
 
 """
-import os.path
 import sys
 from setuptools import setup, Extension
 
-import versioneer
-
-VERSION = versioneer.get_version()
-
 try:
+    import Cython
     from Cython.Build import cythonize
     has_cython = True
 except ImportError:
     has_cython = False
 
+try:
+    from setuptools_git_versioning import get_version
+
+    version = get_version(
+        {
+            'dev_template': '{tag}+{ccount}.g{sha}',
+            'dirty_template': '{tag}+{ccount}.g{sha}.dirty',
+        }
+    )
+    is_dev = '+' in str(version)
+except ModuleNotFoundError:
+    is_dev = True
+
 use_cython = True
-is_dev = '+' in VERSION
 strict_cython = is_dev or os.environ.get('CIBUILDWHEEL', '0') != '1'
 if '--no-cython' in sys.argv:
     use_cython = False
@@ -79,59 +87,12 @@ if use_cython:
         from Cython.Compiler.Options import directive_defaults
     directive_defaults['embedsignature'] = True
     directive_defaults['binding'] = True
-    directive_defaults['language_level'] = '3'  # TODO: drop Python 2.7 and update this (and code) to 3
+    directive_defaults['language_level'] = '3'
+    if Cython.__version__ >= '3.1':
+        # This is experimental! Use at your own risk (and please let us know of issues)
+        directive_defaults['freethreading_compatible'] = True
     # The distributed *.c files may not be forward compatible.
     # If we are cythonizing a non-dev version, then force everything to cythonize.
     ext_modules = cythonize(ext_modules, force=not is_dev)
 
-setup(
-    name='cytoolz',
-    version=VERSION,
-    cmdclass=versioneer.get_cmdclass(),
-    description=('Cython implementation of Toolz: '
-                    'High performance functional utilities'),
-    ext_modules=ext_modules,
-    long_description=(open('README.rst').read()
-                        if os.path.exists('README.rst')
-                        else ''),
-    url='https://github.com/pytoolz/cytoolz',
-    author='https://raw.github.com/pytoolz/cytoolz/master/AUTHORS.md',
-    author_email='erik.n.welch@gmail.com',
-    maintainer='Erik Welch',
-    maintainer_email='erik.n.welch@gmail.com',
-    license = 'BSD',
-    packages=['cytoolz', 'cytoolz.curried'],
-    package_data={'cytoolz': ['*.pyx', '*.pxd', 'curried/*.pyx', 'tests/*.py']},
-    # include_package_data = True,
-    keywords=('functional utility itertools functools iterator generator '
-                'curry memoize lazy streaming bigdata cython toolz cytoolz'),
-    classifiers = [
-        'Development Status :: 5 - Production/Stable',
-        'Intended Audience :: Developers',
-        'Intended Audience :: Education',
-        'Intended Audience :: Science/Research',
-        'License :: OSI Approved :: BSD License',
-        'Operating System :: OS Independent',
-        'Programming Language :: Cython',
-        'Programming Language :: Python',
-        'Programming Language :: Python :: 3',
-        'Programming Language :: Python :: 3.8',
-        'Programming Language :: Python :: 3.9',
-        'Programming Language :: Python :: 3.10',
-        'Programming Language :: Python :: 3.11',
-        'Programming Language :: Python :: 3.12',
-        'Programming Language :: Python :: 3.13',
-        'Programming Language :: Python :: Implementation :: CPython',
-        'Programming Language :: Python :: Implementation :: PyPy',
-        'Topic :: Scientific/Engineering',
-        'Topic :: Scientific/Engineering :: Information Analysis',
-        'Topic :: Software Development',
-        'Topic :: Software Development :: Libraries',
-        'Topic :: Software Development :: Libraries :: Python Modules',
-        'Topic :: Utilities',
-    ],
-    install_requires=['toolz >= 0.8.0'],
-    extras_require={'cython': ['cython']},
-    python_requires=">=3.8",
-    zip_safe=False,
-)
+setup(ext_modules=ext_modules)

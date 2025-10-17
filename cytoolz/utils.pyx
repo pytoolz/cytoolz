@@ -28,9 +28,9 @@ def include_dirs():
 
     Below is a minimal "setup.py" file using ``include_dirs``:
 
-        from distutils.core import setup
-        from distutils.extension import Extension
-        from Cython.Distutils import build_ext
+        from setuptools import setup
+        from setuptools.extension import Extension
+        from Cython.Build import cythonize
 
         import cytoolz.utils
 
@@ -40,11 +40,11 @@ def include_dirs():
                       include_dirs=cytoolz.utils.include_dirs()
                      )
         ]
+        ext_modules = cythonize(ext_modules)
 
         setup(
-          name = "mymodule",
-          cmdclass = {"build_ext": build_ext},
-          ext_modules = ext_modules
+          name="mymodule",
+          ext_modules=ext_modules,
         )
     """
     return os.path.split(cytoolz.__path__[0])

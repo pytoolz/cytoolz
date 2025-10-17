@@ -1,7 +1,7 @@
 name: Builid Wheels and Release
 
 on:
-  pull_request:  # Uncomment to debug wheel building in a PR
+  # pull_request:  # Uncomment to debug wheel building in a PR
   workflow_dispatch:
     inputs:
       upload_dest:

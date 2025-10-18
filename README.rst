@@ -34,7 +34,7 @@ for more details.
 Python 3.13 and provides wheels for free-threaded Python. CyToolz has not
 yet been developed or tested for thread-safety, so use at your own risk!
 If you encounter any issues, please
-`let us know<https://github.com/pytoolz/cytoolz/issues>`__.*
+`let us know <https://github.com/pytoolz/cytoolz/issues>`__.*
 
 LICENSE
 -------

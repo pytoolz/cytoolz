@@ -30,6 +30,12 @@ See the PyToolz documentation at https://toolz.readthedocs.io and the full
 `API Documentation <https://toolz.readthedocs.io/en/latest/api.html>`__
 for more details.
 
+*CyToolz has experimental support for Python free-threading introduced in
+Python 3.13 and provides wheels for free-threaded Python. CyToolz has not
+yet been developed or tested for thread-safety, so use at your own risk!
+If you encounter any issues, please
+`let us know<https://github.com/pytoolz/cytoolz/issues>`__.*
+
 LICENSE
 -------
 

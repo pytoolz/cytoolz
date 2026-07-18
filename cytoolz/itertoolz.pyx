@@ -1069,6 +1069,9 @@ cdef class partition_all:
         cdef tuple result
         cdef object item
         cdef Py_ssize_t i = 0, end
+        # Match toolz: n < 1 yields an empty partition stream (no ZeroDivision/SystemError).
+        if self.n < 1:
+            raise StopIteration
         result = PyTuple_New(self.n)
         for item in self.iterseq:
             Py_INCREF(item)

@@ -343,6 +343,9 @@ def test_partition_all():
     assert list(partition_all(2, [1, 2, 3, 4])) == [(1, 2), (3, 4)]
     assert list(partition_all(3, range(5))) == [(0, 1, 2), (3, 4)]
     assert list(partition_all(2, [])) == []
+    # Match toolz: non-positive n yields an empty stream (no crash).
+    assert list(partition_all(0, [1, 2, 3])) == []
+    assert list(partition_all(-1, [1, 2, 3])) == []
 
     # Regression test: https://github.com/pycytoolz/cytoolz/issues/387
     class NoCompare:

@@ -983,6 +983,9 @@ cdef class sliding_window:
     """
     def __cinit__(self, Py_ssize_t n, object seq):
         cdef Py_ssize_t i
+        # Negative n makes PyTuple_New/islice raise SystemError; n<1 is empty-meaningless.
+        if n < 1:
+            raise ValueError("n must be at least 1")
         self.iterseq = iter(seq)
         self.prev = PyTuple_New(n)
         Py_INCREF(None)

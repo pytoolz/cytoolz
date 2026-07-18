@@ -326,6 +326,11 @@ def test_sliding_window():
     assert list(sliding_window(3, [1, 2, 3, 4])) == [(1, 2, 3), (2, 3, 4)]
 
 
+def test_sliding_window_rejects_non_positive_n():
+    assert raises(ValueError, lambda: list(sliding_window(0, [1, 2, 3])))
+    assert raises(ValueError, lambda: list(sliding_window(-1, [1, 2, 3])))
+
+
 def test_sliding_window_of_short_iterator():
     assert list(sliding_window(3, [1, 2])) == []
     assert list(sliding_window(7, [1, 2])) == []

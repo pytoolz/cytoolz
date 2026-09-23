@@ -47,12 +47,26 @@ cdef class _unique_key:
     cdef object seen
 
 
+cdef class _nonunique_key:
+    cdef object key
+    cdef object iter_seq
+    cdef object seen
+
+
 cdef class _unique_identity:
+    cdef object iter_seq
+    cdef object seen
+    
+
+cdef class _nonunique_identity:
     cdef object iter_seq
     cdef object seen
 
 
 cpdef object unique(object seq, object key=*)
+
+
+cpdef object nonunique(object seq, object key=*)
 
 
 cpdef object isiterable(object x)

@@ -9,7 +9,9 @@ from cpython.ref cimport PyObject, Py_DECREF, Py_INCREF, Py_XDECREF
 from cytoolz.cpython cimport PyDict_Next_Compat, PtrIter_Next
 
 from collections import abc
+import collections.abc
 
+from typing_extensions import TypeVar
 
 # cdef aliases to eliminate global lookups
 
@@ -20,6 +22,10 @@ del abc
 __all__ = ['merge', 'merge_with', 'valmap', 'keymap', 'itemmap', 'valfilter',
            'keyfilter', 'itemfilter', 'assoc', 'dissoc', 'assoc_in', 'get_in',
            'update_in']
+
+
+K = TypeVar('K')
+V = TypeVar('V')
 
 
 cdef class _iter_mapping:
@@ -370,15 +376,42 @@ cpdef object itemfilter(object predicate, object d, object factory=dict):
 
 
 cpdef object assoc(object d, object key, object value, object factory=dict):
-    """
-    Return a new dict with new key value pair
+    """assoc(d: collections.abc.Mapping[K, V], key: K, value: V, factory: collections.abc.Callable[[], collections.abc.MutableMapping[K, V]] = dict) -> collections.abc.MutableMapping[K, V]
 
-    New dict has d[key] set to value. Does not modify the initial dictionary.
+    Create a new `Mapping`[1] with `key` associated with `value`.
 
-    >>> assoc({'x': 1}, 'x', 2)
-    {'x': 2}
-    >>> assoc({'x': 1}, 'y', 3)   # doctest: +SKIP
-    {'x': 1, 'y': 3}
+    You can use `assoc` (***assoc***iate) to copy `d` (***d***ictionary) to a new `Mapping` created by
+    `factory` and assign `value` to `key`. `assoc` does not change `d`.
+
+    Parameters
+    ----------
+    d : Mapping[K, V]
+        Source `Mapping`.
+    key : K
+        `key` that `assoc` inserts or replaces.
+    value : V
+        `value` that `assoc` assigns to `key`.
+    factory : Callable[[], MutableMapping[K, V]] = dict
+        `Callable` that creates the `MutableMapping`[1] to `return`.
+
+    Returns
+    -------
+    mappingUpdated : MutableMapping[K, V]
+        New `Mapping` with `key` associated to `value`.
+
+    Examples
+    --------
+    >>> assoc({}, 'a', 1)
+    {'a': 1}
+    >>> assoc({'a': 1}, 'a', 3)
+    {'a': 3}
+    >>> assoc({'a': 1}, 'b', 3)
+    {'a': 1, 'b': 3}
+
+    References
+    ----------
+    [1] Python `collections.abc` module
+        https://docs.python.org/3/library/collections.abc.html
     """
     cdef object rv
     rv = factory()

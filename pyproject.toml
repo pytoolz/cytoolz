@@ -65,6 +65,7 @@ classifiers = [
 ]
 dependencies = [
   "toolz >= 0.8.0",
+  "typing_extensions >= 3.5.0",
 ]
 
 [project.optional-dependencies]

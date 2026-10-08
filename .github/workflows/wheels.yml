@@ -1,7 +1,12 @@
 name: Build Wheels and Release
 
 on:
-  # pull_request:  # Uncomment to debug wheel building in a PR
+  # Build (but don't upload) wheels in PRs that change how they are built
+  pull_request:
+    paths:
+      - .github/workflows/wheels.yml
+      - pyproject.toml
+      - setup.py
   workflow_dispatch:
     inputs:
       upload_dest:
@@ -60,12 +65,22 @@ jobs:
             # macos-14+ (including latest) are ARM64 runners
             runs-on: macos-latest
             archs: auto universal2
-          - os: ios
+          # iOS tests run on a simulator matching the runner's CPU; device wheels are untested
+          - os: ios-arm
             runs-on: macos-latest
             platform: ios
-            archs: all
+            archs: arm64_iphoneos arm64_iphonesimulator
+          - os: ios-intel
+            runs-on: macos-15-intel
+            platform: ios
+            archs: x86_64_iphonesimulator
+          # Android tests run on an emulator, which GitHub Actions only supports on x86_64,
+          # so we skip arm64_v8a since we can't test it
+          - os: android-intel
+            runs-on: ubuntu-latest
+            platform: android
+            archs: x86_64
           - os: pyodide
-            # pyodide is not yet supported by PyPI, but let's make sure we can build for it
             runs-on: ubuntu-latest
             platform: pyodide
             archs: all
@@ -81,10 +96,6 @@ jobs:
         with:
           fetch-depth: 0
           persist-credentials: false
-      - name: Set up Python
-        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97  # v7.0.0
-        with:
-          python-version: "3.x"
       - name: Build wheels
         uses: pypa/cibuildwheel@adba99c781d3746d38b3a09b1cf797965bcb7fe6  # v4.3.0
         env:
@@ -92,12 +103,10 @@ jobs:
           CIBW_ARCHS: ${{ matrix.archs || 'auto' }}
           CIBW_BUILD: "cp* pp*"
           CIBW_ENABLE: "pypy"  # free-threaded CPython 3.14+ is built by default
-          CIBW_TEST_SKIP: "*-ios_*"
       - name: List wheels
         run: |
           ls -al wheelhouse/
       - name: Upload wheels
-        if: matrix.platform != 'pyodide'  # pyodide is not yet supported by PyPI
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9  # v7.0.2
         with:
           name: cibw-wheels-${{ matrix.os }}-${{ strategy.job-index }}

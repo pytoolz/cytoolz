@@ -1,7 +1,12 @@
 name: Build Wheels and Release
 
 on:
-  # pull_request:  # Uncomment to debug wheel building in a PR
+  # Build (but don't upload) wheels in PRs that change how they are built
+  pull_request:
+    paths:
+      - .github/workflows/wheels.yml
+      - pyproject.toml
+      - setup.py
   workflow_dispatch:
     inputs:
       upload_dest:

@@ -32,8 +32,9 @@ jobs:
           - "pypy3.9"
           - "pypy3.10"
           - "pypy3.11"
+          - "pypy3.12"
         exclude:
-          # Cython 0.29 does not support Python 3.13+ or PyPy 3.11
+          # Cython 0.29 does not support Python 3.13+ or PyPy 3.11+
           - cython-version: "0.29.37"
             python-version: "3.13"
           - cython-version: "0.29.37"
@@ -48,6 +49,8 @@ jobs:
             python-version: "3.15t"
           - cython-version: "0.29.37"
             python-version: "pypy3.11"
+          - cython-version: "0.29.37"
+            python-version: "pypy3.12"
     steps:
       - name: Checkout
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1

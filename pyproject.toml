@@ -65,6 +65,8 @@ classifiers = [
 ]
 dependencies = [
   "toolz >= 0.8.0",
+  # toolz 1.2.0 added the signature of `frozendict`, which is new in Python 3.15
+  "toolz >= 1.2.0; python_version >= '3.15'",
 ]
 
 [project.optional-dependencies]

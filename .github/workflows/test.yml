@@ -11,6 +11,27 @@ permissions:
   contents: read
 
 jobs:
+  mypy-stubs:
+    name: Mypy (stubs)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+      - name: Install mypy
+        run: |
+          python -m pip install --upgrade pip
+          pip install mypy typing_extensions
+      - name: Type check stubs
+        run: |
+          python -m mypy --config-file mypy.ini
+
   test:
     runs-on: ${{ matrix.os }}
     strategy:

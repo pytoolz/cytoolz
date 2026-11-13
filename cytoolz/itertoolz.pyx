@@ -1,4 +1,4 @@
-from cpython.dict cimport PyDict_GetItem, PyDict_SetItem
+from cpython.dict cimport PyDict_GetItem, PyDict_GetItemWithError, PyDict_SetItem
 from cpython.exc cimport PyErr_Clear, PyErr_GivenExceptionMatches, PyErr_Occurred
 from cpython.list cimport PyList_Append, PyList_GET_ITEM, PyList_GET_SIZE
 from cpython.object cimport PyObject_RichCompareBool, Py_NE
@@ -1424,7 +1424,7 @@ cdef class _right_outer_join(_join):
         if self.i == PyList_GET_SIZE(self.matches):
             self.right = next(self.rightseq)
             key = self.rightkey()
-            obj = PyDict_GetItem(self.d, key)
+            obj = PyDict_GetItemWithError(self.d, key)
             if obj is NULL:
                 return (self.left_default, self.right)
             self.matches = <object>obj
@@ -1468,7 +1468,7 @@ cdef class _outer_join(_join):
                     return next(self)
                 key = self.rightkey()
                 PySet_Add(self.seen_keys, key)
-                obj = PyDict_GetItem(self.d, key)
+                obj = PyDict_GetItemWithError(self.d, key)
                 if obj is NULL:
                     return (self.left_default, self.right)
                 self.matches = <object>obj
@@ -1482,7 +1482,7 @@ cdef class _outer_join(_join):
                 key = next(self.keys)
                 while key in self.seen_keys:
                     key = next(self.keys)
-                obj = PyDict_GetItem(self.d, key)
+                obj = PyDict_GetItemWithError(self.d, key)
                 self.matches = <object>obj
                 self.i = 0
             match = <object>PyList_GET_ITEM(self.matches, self.i)  # skip error checking
@@ -1526,7 +1526,7 @@ cdef class _left_outer_join(_join):
                         return next(self)
                     key = self.rightkey()
                     PySet_Add(self.seen_keys, key)
-                    obj = PyDict_GetItem(self.d, key)
+                    obj = PyDict_GetItemWithError(self.d, key)
                 self.matches = <object>obj
                 self.i = 0
             match = <object>PyList_GET_ITEM(self.matches, self.i)  # skip error checking
@@ -1538,7 +1538,7 @@ cdef class _left_outer_join(_join):
                 key = next(self.keys)
                 while key in self.seen_keys:
                     key = next(self.keys)
-                obj = PyDict_GetItem(self.d, key)
+                obj = PyDict_GetItemWithError(self.d, key)
                 self.matches = <object>obj
                 self.i = 0
             match = <object>PyList_GET_ITEM(self.matches, self.i)  # skip error checking
@@ -1574,7 +1574,7 @@ cdef class _inner_join(_join):
             while obj is NULL:
                 self.right = next(self.rightseq)
                 key = self.rightkey()
-                obj = PyDict_GetItem(self.d, key)
+                obj = PyDict_GetItemWithError(self.d, key)
             self.matches = <object>obj
             self.i = 0
         match = <object>PyList_GET_ITEM(self.matches, self.i)  # skip error checking

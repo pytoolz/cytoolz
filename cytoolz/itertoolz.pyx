@@ -1,14 +1,14 @@
 from cpython.dict cimport PyDict_GetItem, PyDict_SetItem
-from cpython.exc cimport PyErr_Clear, PyErr_GivenExceptionMatches, PyErr_Occurred
 from cpython.list cimport PyList_Append, PyList_GET_ITEM, PyList_GET_SIZE
 from cpython.object cimport PyObject_RichCompareBool, Py_NE
+from cpython.exc cimport PyErr_ExceptionMatches, PyErr_Fetch, PyErr_Restore
 from cpython.ref cimport PyObject, Py_INCREF, Py_XDECREF
 from cpython.sequence cimport PySequence_Check
 from cpython.set cimport PySet_Add, PySet_Contains
 from cpython.tuple cimport PyTuple_GET_ITEM, PyTuple_GetSlice, PyTuple_New, PyTuple_SET_ITEM
 
 # Locally defined bindings that differ from `cython.cpython` bindings
-from cytoolz.cpython cimport PtrIter_Next, PtrObject_GetItem
+from cytoolz.cpython cimport PtrObject_GetItem
 
 import collections
 import heapq
@@ -360,30 +360,9 @@ cdef class interleave:
         # This implementation is similar to what is done in `toolz` in that we
         # construct a new list of iterators, `self.newiters`, when a value is
         # successfully retrieved from an iterator from `self.iters`.
-        cdef PyObject *obj
-        cdef object val
+        cdef object itr, val
 
-        if self.i == self.n:
-            self.n = PyList_GET_SIZE(self.newiters)
-            self.i = 0
-            if self.n == 0:
-                raise StopIteration
-            self.iters = self.newiters
-            self.newiters = []
-        val = <object>PyList_GET_ITEM(self.iters, self.i)
-        self.i += 1
-        obj = PtrIter_Next(val)
-
-        # TODO: optimization opportunity.  Previously, it was possible to
-        # continue on given exceptions, `self.pass_exceptions`, which is
-        # why this code is structured this way.  Time to clean up?
-        while obj is NULL:
-            obj = PyErr_Occurred()
-            if obj is not NULL:
-                val = <object>obj
-                PyErr_Clear()
-                raise val
-
+        while True:
             if self.i == self.n:
                 self.n = PyList_GET_SIZE(self.newiters)
                 self.i = 0
@@ -391,14 +370,14 @@ cdef class interleave:
                     raise StopIteration
                 self.iters = self.newiters
                 self.newiters = []
-            val = <object>PyList_GET_ITEM(self.iters, self.i)
+            itr = <object>PyList_GET_ITEM(self.iters, self.i)
             self.i += 1
-            obj = PtrIter_Next(val)
-
-        PyList_Append(self.newiters, val)
-        val = <object>obj
-        Py_XDECREF(obj)
-        return val
+            try:
+                val = next(itr)
+            except StopIteration:
+                continue
+            PyList_Append(self.newiters, itr)
+            return val
 
 
 cdef class _unique_key:
@@ -634,6 +613,11 @@ cdef tuple _get_exceptions = (IndexError, KeyError, TypeError)
 cdef tuple _get_list_exc = (IndexError, KeyError)
 
 
+cdef int _propagate() except -1:
+    # Signal that the exception already set by the caller should propagate.
+    return -1
+
+
 cpdef object get(object ind, object seq, object default='__no__default__'):
     """
     Get element in a sequence or dict
@@ -672,6 +656,10 @@ cpdef object get(object ind, object seq, object default='__no__default__'):
     cdef object val
     cdef tuple result
     cdef PyObject *obj
+    cdef PyObject *etype
+    cdef PyObject *evalue
+    cdef PyObject *etb
+    cdef bint missing
     if isinstance(ind, list):
         i = PyList_GET_SIZE(ind)
         result = PyTuple_New(i)
@@ -685,31 +673,38 @@ cpdef object get(object ind, object seq, object default='__no__default__'):
 
         # List of indices with default
         for i, val in enumerate(ind):
-            obj = PtrObject_GetItem(seq, val)
-            if obj is NULL:
-                val = <object>PyErr_Occurred()
-                PyErr_Clear()
-                if not PyErr_GivenExceptionMatches(val, _get_list_exc):
-                    raise val
-                Py_INCREF(default)
-                PyTuple_SET_ITEM(result, i, default)
-            else:
-                val = <object>obj
-                PyTuple_SET_ITEM(result, i, val)
+            try:
+                val = seq[val]
+            except _get_list_exc:
+                val = default
+            Py_INCREF(val)
+            PyTuple_SET_ITEM(result, i, val)
         return result
 
     obj = PtrObject_GetItem(seq, ind)
-    if obj is NULL:
-        val = <object>PyErr_Occurred()
-        PyErr_Clear()
-        if default == no_default:
-            raise val
-        if PyErr_GivenExceptionMatches(val, _get_exceptions):
-            return default
-        raise val
-    val = <object>obj
-    Py_XDECREF(obj)
-    return val
+    if obj is not NULL:
+        val = <object>obj
+        Py_XDECREF(obj)
+        return val
+    if not PyErr_ExceptionMatches(_get_exceptions):
+        _propagate()
+    # Hold the original error while comparing with the sentinel, then either
+    # restore it unchanged or drop it and return the default.
+    PyErr_Fetch(&etype, &evalue, &etb)
+    try:
+        missing = default == no_default
+    except BaseException:
+        Py_XDECREF(etype)
+        Py_XDECREF(evalue)
+        Py_XDECREF(etb)
+        raise
+    if missing:
+        PyErr_Restore(etype, evalue, etb)
+        _propagate()
+    Py_XDECREF(etype)
+    Py_XDECREF(evalue)
+    Py_XDECREF(etb)
+    return default
 
 
 cdef object _chain_from_iterable = chain.from_iterable
@@ -1142,19 +1137,12 @@ cdef class _pluck_index_default:
         return self
 
     def __next__(self):
-        cdef PyObject *obj
         cdef object val
         val = next(self.iterseqs)
-        obj = PtrObject_GetItem(val, self.ind)
-        if obj is NULL:
-            val = <object>PyErr_Occurred()
-            PyErr_Clear()
-            if not PyErr_GivenExceptionMatches(val, _get_exceptions):
-                raise val
+        try:
+            return val[self.ind]
+        except _get_exceptions:
             return self.default
-        val = <object>obj
-        Py_XDECREF(obj)
-        return val
 
 
 cdef class _pluck_list:
@@ -1196,17 +1184,12 @@ cdef class _pluck_list_default:
         seq = next(self.iterseqs)
         result = PyTuple_New(self.n)
         for i, val in enumerate(self.ind):
-            obj = PtrObject_GetItem(seq, val)
-            if obj is NULL:
-                val = <object>PyErr_Occurred()
-                PyErr_Clear()
-                if not PyErr_GivenExceptionMatches(val, _get_list_exc):
-                    raise val
-                Py_INCREF(self.default)
-                PyTuple_SET_ITEM(result, i, self.default)
-            else:
-                val = <object>obj
-                PyTuple_SET_ITEM(result, i, val)
+            try:
+                val = seq[val]
+            except _get_list_exc:
+                val = self.default
+            Py_INCREF(val)
+            PyTuple_SET_ITEM(result, i, val)
         return result
 
 

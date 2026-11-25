@@ -985,6 +985,8 @@ cdef class sliding_window:
     """
     def __cinit__(self, Py_ssize_t n, object seq):
         cdef Py_ssize_t i
+        if n <= 0:
+            raise ValueError('n must be greater than zero')
         self.iterseq = iter(seq)
         self.prev = PyTuple_New(n)
         Py_INCREF(None)
@@ -1071,6 +1073,8 @@ cdef class partition_all:
         cdef tuple result
         cdef object item
         cdef Py_ssize_t i = 0, end
+        if self.n <= 0:
+            raise StopIteration
         result = PyTuple_New(self.n)
         for item in self.iterseq:
             Py_INCREF(item)

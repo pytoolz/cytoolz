@@ -335,6 +335,38 @@ def test_sliding_window_of_short_iterator():
     assert list(sliding_window(7, [1, 2])) == []
 
 
+def test_sliding_window_negative_size():
+    for n in (-1, -10):
+        seq = iter([1, 2])
+        assert raises(ValueError, lambda: sliding_window(n, seq))
+        assert next(seq) == 1
+
+
+def test_sliding_window_zero_size():
+    for seq in ([], [1, 2], iter([1, 2])):
+        assert raises(ValueError, lambda: sliding_window(0, seq))
+
+
+def test_partition_all_negative_size():
+    for n in (-1, -10):
+        for seq in ([], [1, 2], iter([1, 2])):
+            assert list(partition_all(n, seq)) == []
+
+
+def test_partition_all_zero_size():
+    for seq in ([], [1, 2], iter([1, 2])):
+        assert list(partition_all(0, seq)) == []
+
+
+def test_partition_all_nonpositive_size_does_not_consume_input():
+    for n in (0, -1):
+        seq = iter([1, 2])
+        result = partition_all(n, seq)
+        assert list(result) == []
+        assert list(result) == []
+        assert next(seq) == 1
+
+
 def test_partition():
     assert list(partition(2, [1, 2, 3, 4])) == [(1, 2), (3, 4)]
     assert list(partition(3, range(7))) == [(0, 1, 2), (3, 4, 5)]

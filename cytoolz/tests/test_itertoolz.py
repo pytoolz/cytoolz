@@ -191,6 +191,13 @@ def test_tail():
     assert list(tail(2, (3, 2, 1))) == list((2, 1))
 
 
+def test_tail_large_n():
+    # toolz accepts any Python int for a sequence, so a value that does not
+    # fit in a C ssize_t must not raise.
+    assert list(tail(2 ** 63, [1, 2, 3])) == [1, 2, 3]
+    assert list(tail(2 ** 63, 'abc')) == list('abc')
+
+
 def test_drop():
     assert list(drop(3, 'ABCDE')) == list('DE')
     assert list(drop(1, (3, 2, 1))) == list((2, 1))

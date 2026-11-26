@@ -516,7 +516,7 @@ cpdef object take(Py_ssize_t n, object seq):
     return islice(seq, n)
 
 
-cpdef object tail(Py_ssize_t n, object seq):
+cpdef object tail(object n, object seq):
     """
     The last n elements of a sequence
 
